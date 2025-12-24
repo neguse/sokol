@@ -8,7 +8,15 @@
 #include "sokol_shape.h"
 
 #ifndef SOKOL_LUA_API
-#define SOKOL_LUA_API
+  #ifdef _WIN32
+    #ifdef SOKOL_LUA_EXPORTS
+      #define SOKOL_LUA_API __declspec(dllexport)
+    #else
+      #define SOKOL_LUA_API __declspec(dllimport)
+    #endif
+  #else
+    #define SOKOL_LUA_API
+  #endif
 #endif
 
 static int l_sshape_range_new(lua_State *L) {

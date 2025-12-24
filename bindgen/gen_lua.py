@@ -483,7 +483,15 @@ def gen_module(inp, c_prefix, dep_prefixes):
     l('')
 
     l('#ifndef SOKOL_LUA_API')
-    l('#define SOKOL_LUA_API')
+    l('  #ifdef _WIN32')
+    l('    #ifdef SOKOL_LUA_EXPORTS')
+    l('      #define SOKOL_LUA_API __declspec(dllexport)')
+    l('    #else')
+    l('      #define SOKOL_LUA_API __declspec(dllimport)')
+    l('    #endif')
+    l('  #else')
+    l('    #define SOKOL_LUA_API')
+    l('  #endif')
     l('#endif')
     l('')
 
