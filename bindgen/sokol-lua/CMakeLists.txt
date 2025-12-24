@@ -204,11 +204,14 @@ if(SOKOL_LUA_BUILD_EXAMPLE)
         endif()
     endif()
 
-    # Copy lua script
+    # Copy lua scripts
     add_custom_command(TARGET sokol-lua-example POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/examples/main.lua
         $<TARGET_FILE_DIR:sokol-lua-example>/main.lua
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/examples/raytracer.lua
+        $<TARGET_FILE_DIR:sokol-lua-example>/raytracer.lua
     )
 endif()
 
