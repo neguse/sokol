@@ -17,8 +17,76 @@ extern int luaopen_sokol_log(lua_State *L);
 extern int luaopen_sokol_time(lua_State *L);
 
 static lua_State *L = NULL;
-static sg_pass_action pass_action;
-static double t = 0;
+
+/* ---- Lua helper functions ---- */
+
+/* sokol.begin_pass(r, g, b, a) - begin default pass with clear color */
+static int l_begin_pass(lua_State *L) {
+    float r = (float)luaL_optnumber(L, 1, 0.0);
+    float g = (float)luaL_optnumber(L, 2, 0.0);
+    float b = (float)luaL_optnumber(L, 3, 0.0);
+    float a = (float)luaL_optnumber(L, 4, 1.0);
+    sg_begin_pass(&(sg_pass){
+        .action = {
+            .colors[0] = {
+                .load_action = SG_LOADACTION_CLEAR,
+                .clear_value = { r, g, b, a }
+            }
+        },
+        .swapchain = sglue_swapchain()
+    });
+    return 0;
+}
+
+/* sokol.end_pass() */
+static int l_end_pass(lua_State *L) {
+    (void)L;
+    sg_end_pass();
+    return 0;
+}
+
+/* sokol.commit() */
+static int l_commit(lua_State *L) {
+    (void)L;
+    sg_commit();
+    return 0;
+}
+
+/* sokol.width() */
+static int l_width(lua_State *L) {
+    lua_pushinteger(L, sapp_width());
+    return 1;
+}
+
+/* sokol.height() */
+static int l_height(lua_State *L) {
+    lua_pushinteger(L, sapp_height());
+    return 1;
+}
+
+/* sokol.quit() */
+static int l_quit(lua_State *L) {
+    (void)L;
+    sapp_quit();
+    return 0;
+}
+
+static const luaL_Reg sokol_funcs[] = {
+    {"begin_pass", l_begin_pass},
+    {"end_pass", l_end_pass},
+    {"commit", l_commit},
+    {"width", l_width},
+    {"height", l_height},
+    {"quit", l_quit},
+    {NULL, NULL}
+};
+
+static int luaopen_sokol(lua_State *L) {
+    luaL_newlib(L, sokol_funcs);
+    return 1;
+}
+
+/* ---- App callbacks ---- */
 
 static void call_lua(const char *func) {
     lua_getglobal(L, func);
@@ -37,27 +105,11 @@ static void init(void) {
         .environment = sglue_environment(),
         .logger.func = slog_func,
     });
-    pass_action = (sg_pass_action){
-        .colors[0] = {
-            .load_action = SG_LOADACTION_CLEAR,
-            .clear_value = { 0.2f, 0.2f, 0.8f, 1.0f }
-        }
-    };
     call_lua("init");
 }
 
 static void frame(void) {
-    t += 1.0 / 60.0;
-    float r = (float)(sin(t) + 1.0) * 0.5f;
-    float g = (float)(sin(t + 2.0) + 1.0) * 0.5f;
-    float b = (float)(sin(t + 4.0) + 1.0) * 0.5f;
-    pass_action.colors[0].clear_value = (sg_color){ r, g, b, 1.0f };
-
-    sg_begin_pass(&(sg_pass){ .action = pass_action, .swapchain = sglue_swapchain() });
-    /* Let Lua draw here if needed */
     call_lua("frame");
-    sg_end_pass();
-    sg_commit();
 }
 
 static void cleanup(void) {
@@ -94,7 +146,11 @@ sapp_desc sokol_main(int argc, char* argv[]) {
     L = luaL_newstate();
     luaL_openlibs(L);
 
-    /* Register sokol modules */
+    /* Register sokol helper module (begin_pass, end_pass, commit, etc.) */
+    luaL_requiref(L, "sokol", luaopen_sokol, 1);
+    lua_pop(L, 1);
+
+    /* Register generated sokol modules */
     luaL_requiref(L, "sokol.gfx", luaopen_sokol_gfx, 0);
     lua_pop(L, 1);
     luaL_requiref(L, "sokol.app", luaopen_sokol_app, 0);
