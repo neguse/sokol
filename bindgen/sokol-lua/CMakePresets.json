@@ -1,0 +1,150 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "installDir": "${sourceDir}/install/${presetName}"
+    },
+    {
+      "name": "windows-d3d11",
+      "displayName": "Windows (D3D11)",
+      "inherits": "base",
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "SOKOL_LUA_BACKEND_D3D11": "ON"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-d3d11-shared",
+      "displayName": "Windows (D3D11, Shared)",
+      "inherits": "windows-d3d11",
+      "cacheVariables": {
+        "SOKOL_LUA_BUILD_SHARED": "ON"
+      }
+    },
+    {
+      "name": "windows-gl",
+      "displayName": "Windows (OpenGL)",
+      "inherits": "base",
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "SOKOL_LUA_BACKEND_GL": "ON"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "macos-metal",
+      "displayName": "macOS (Metal)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "SOKOL_LUA_BACKEND_METAL": "ON"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "macos-gl",
+      "displayName": "macOS (OpenGL)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "SOKOL_LUA_BACKEND_GL": "ON"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
+      "name": "linux-gl",
+      "displayName": "Linux (OpenGL)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "SOKOL_LUA_BACKEND_GL": "ON"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "linux-gles3",
+      "displayName": "Linux (OpenGL ES3)",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "SOKOL_LUA_BACKEND_GLES3": "ON"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "windows-d3d11-debug",
+      "configurePreset": "windows-d3d11",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-d3d11-release",
+      "configurePreset": "windows-d3d11",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-d3d11-shared-release",
+      "configurePreset": "windows-d3d11-shared",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-gl-release",
+      "configurePreset": "windows-gl",
+      "configuration": "Release"
+    },
+    {
+      "name": "macos-metal-release",
+      "configurePreset": "macos-metal"
+    },
+    {
+      "name": "macos-gl-release",
+      "configurePreset": "macos-gl"
+    },
+    {
+      "name": "linux-gl-release",
+      "configurePreset": "linux-gl"
+    },
+    {
+      "name": "linux-gles3-release",
+      "configurePreset": "linux-gles3"
+    }
+  ]
+}
