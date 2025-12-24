@@ -22,6 +22,15 @@ static int l_saudio_logger_new(lua_State *L) {
     saudio_logger* ud = (saudio_logger*)lua_newuserdatauv(L, sizeof(saudio_logger), 0);
     memset(ud, 0, sizeof(saudio_logger));
     luaL_setmetatable(L, "sokol.Logger");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -53,6 +62,15 @@ static int l_saudio_allocator_new(lua_State *L) {
     saudio_allocator* ud = (saudio_allocator*)lua_newuserdatauv(L, sizeof(saudio_allocator), 0);
     memset(ud, 0, sizeof(saudio_allocator));
     luaL_setmetatable(L, "sokol.Allocator");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -84,6 +102,25 @@ static int l_saudio_n3ds_desc_new(lua_State *L) {
     saudio_n3ds_desc* ud = (saudio_n3ds_desc*)lua_newuserdatauv(L, sizeof(saudio_n3ds_desc), 0);
     memset(ud, 0, sizeof(saudio_n3ds_desc));
     luaL_setmetatable(L, "sokol.N3dsDesc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "queue_count");
+        if (!lua_isnil(L, -1)) {
+            ud->queue_count = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "interpolation_type");
+        if (!lua_isnil(L, -1)) {
+            ud->interpolation_type = (saudio_n3ds_ndspinterptype)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "channel_id");
+        if (!lua_isnil(L, -1)) {
+            ud->channel_id = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -143,6 +180,88 @@ static int l_saudio_desc_new(lua_State *L) {
     saudio_desc* ud = (saudio_desc*)lua_newuserdatauv(L, sizeof(saudio_desc), 0);
     memset(ud, 0, sizeof(saudio_desc));
     luaL_setmetatable(L, "sokol.Desc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "sample_rate");
+        if (!lua_isnil(L, -1)) {
+            ud->sample_rate = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "num_channels");
+        if (!lua_isnil(L, -1)) {
+            ud->num_channels = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "buffer_frames");
+        if (!lua_isnil(L, -1)) {
+            ud->buffer_frames = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "packet_frames");
+        if (!lua_isnil(L, -1)) {
+            ud->packet_frames = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "num_packets");
+        if (!lua_isnil(L, -1)) {
+            ud->num_packets = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "n3ds");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_saudio_n3ds_desc_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                saudio_n3ds_desc* val = (saudio_n3ds_desc*)luaL_testudata(L, -1, "sokol.N3dsDesc");
+                if (val) ud->n3ds = *val;
+                lua_pop(L, 1);
+            } else {
+                saudio_n3ds_desc* val = (saudio_n3ds_desc*)luaL_testudata(L, -1, "sokol.N3dsDesc");
+                if (val) ud->n3ds = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "allocator");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_saudio_allocator_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                saudio_allocator* val = (saudio_allocator*)luaL_testudata(L, -1, "sokol.Allocator");
+                if (val) ud->allocator = *val;
+                lua_pop(L, 1);
+            } else {
+                saudio_allocator* val = (saudio_allocator*)luaL_testudata(L, -1, "sokol.Allocator");
+                if (val) ud->allocator = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "logger");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_saudio_logger_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                saudio_logger* val = (saudio_logger*)luaL_testudata(L, -1, "sokol.Logger");
+                if (val) ud->logger = *val;
+                lua_pop(L, 1);
+            } else {
+                saudio_logger* val = (saudio_logger*)luaL_testudata(L, -1, "sokol.Logger");
+                if (val) ud->logger = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -357,76 +476,76 @@ static int l_saudio_push(lua_State *L) {
 static void register_saudio_log_item(lua_State *L) {
     lua_newtable(L);
     lua_pushinteger(L, SAUDIO_LOGITEM_OK);
-    lua_setfield(L, -2, "LOGITEM_OK");
+    lua_setfield(L, -2, "OK");
     lua_pushinteger(L, SAUDIO_LOGITEM_MALLOC_FAILED);
-    lua_setfield(L, -2, "LOGITEM_MALLOC_FAILED");
+    lua_setfield(L, -2, "MALLOC_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_ALSA_SND_PCM_OPEN_FAILED);
-    lua_setfield(L, -2, "LOGITEM_ALSA_SND_PCM_OPEN_FAILED");
+    lua_setfield(L, -2, "ALSA_SND_PCM_OPEN_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_ALSA_FLOAT_SAMPLES_NOT_SUPPORTED);
-    lua_setfield(L, -2, "LOGITEM_ALSA_FLOAT_SAMPLES_NOT_SUPPORTED");
+    lua_setfield(L, -2, "ALSA_FLOAT_SAMPLES_NOT_SUPPORTED");
     lua_pushinteger(L, SAUDIO_LOGITEM_ALSA_REQUESTED_BUFFER_SIZE_NOT_SUPPORTED);
-    lua_setfield(L, -2, "LOGITEM_ALSA_REQUESTED_BUFFER_SIZE_NOT_SUPPORTED");
+    lua_setfield(L, -2, "ALSA_REQUESTED_BUFFER_SIZE_NOT_SUPPORTED");
     lua_pushinteger(L, SAUDIO_LOGITEM_ALSA_REQUESTED_CHANNEL_COUNT_NOT_SUPPORTED);
-    lua_setfield(L, -2, "LOGITEM_ALSA_REQUESTED_CHANNEL_COUNT_NOT_SUPPORTED");
+    lua_setfield(L, -2, "ALSA_REQUESTED_CHANNEL_COUNT_NOT_SUPPORTED");
     lua_pushinteger(L, SAUDIO_LOGITEM_ALSA_SND_PCM_HW_PARAMS_SET_RATE_NEAR_FAILED);
-    lua_setfield(L, -2, "LOGITEM_ALSA_SND_PCM_HW_PARAMS_SET_RATE_NEAR_FAILED");
+    lua_setfield(L, -2, "ALSA_SND_PCM_HW_PARAMS_SET_RATE_NEAR_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_ALSA_SND_PCM_HW_PARAMS_FAILED);
-    lua_setfield(L, -2, "LOGITEM_ALSA_SND_PCM_HW_PARAMS_FAILED");
+    lua_setfield(L, -2, "ALSA_SND_PCM_HW_PARAMS_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_ALSA_PTHREAD_CREATE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_ALSA_PTHREAD_CREATE_FAILED");
+    lua_setfield(L, -2, "ALSA_PTHREAD_CREATE_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_WASAPI_CREATE_EVENT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WASAPI_CREATE_EVENT_FAILED");
+    lua_setfield(L, -2, "WASAPI_CREATE_EVENT_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_WASAPI_CREATE_DEVICE_ENUMERATOR_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WASAPI_CREATE_DEVICE_ENUMERATOR_FAILED");
+    lua_setfield(L, -2, "WASAPI_CREATE_DEVICE_ENUMERATOR_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_WASAPI_GET_DEFAULT_AUDIO_ENDPOINT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WASAPI_GET_DEFAULT_AUDIO_ENDPOINT_FAILED");
+    lua_setfield(L, -2, "WASAPI_GET_DEFAULT_AUDIO_ENDPOINT_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_WASAPI_DEVICE_ACTIVATE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WASAPI_DEVICE_ACTIVATE_FAILED");
+    lua_setfield(L, -2, "WASAPI_DEVICE_ACTIVATE_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_WASAPI_AUDIO_CLIENT_INITIALIZE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WASAPI_AUDIO_CLIENT_INITIALIZE_FAILED");
+    lua_setfield(L, -2, "WASAPI_AUDIO_CLIENT_INITIALIZE_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_WASAPI_AUDIO_CLIENT_GET_BUFFER_SIZE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WASAPI_AUDIO_CLIENT_GET_BUFFER_SIZE_FAILED");
+    lua_setfield(L, -2, "WASAPI_AUDIO_CLIENT_GET_BUFFER_SIZE_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_WASAPI_AUDIO_CLIENT_GET_SERVICE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WASAPI_AUDIO_CLIENT_GET_SERVICE_FAILED");
+    lua_setfield(L, -2, "WASAPI_AUDIO_CLIENT_GET_SERVICE_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_WASAPI_AUDIO_CLIENT_SET_EVENT_HANDLE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WASAPI_AUDIO_CLIENT_SET_EVENT_HANDLE_FAILED");
+    lua_setfield(L, -2, "WASAPI_AUDIO_CLIENT_SET_EVENT_HANDLE_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_WASAPI_CREATE_THREAD_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WASAPI_CREATE_THREAD_FAILED");
+    lua_setfield(L, -2, "WASAPI_CREATE_THREAD_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_AAUDIO_STREAMBUILDER_OPEN_STREAM_FAILED);
-    lua_setfield(L, -2, "LOGITEM_AAUDIO_STREAMBUILDER_OPEN_STREAM_FAILED");
+    lua_setfield(L, -2, "AAUDIO_STREAMBUILDER_OPEN_STREAM_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_AAUDIO_PTHREAD_CREATE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_AAUDIO_PTHREAD_CREATE_FAILED");
+    lua_setfield(L, -2, "AAUDIO_PTHREAD_CREATE_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_AAUDIO_RESTARTING_STREAM_AFTER_ERROR);
-    lua_setfield(L, -2, "LOGITEM_AAUDIO_RESTARTING_STREAM_AFTER_ERROR");
+    lua_setfield(L, -2, "AAUDIO_RESTARTING_STREAM_AFTER_ERROR");
     lua_pushinteger(L, SAUDIO_LOGITEM_USING_AAUDIO_BACKEND);
-    lua_setfield(L, -2, "LOGITEM_USING_AAUDIO_BACKEND");
+    lua_setfield(L, -2, "USING_AAUDIO_BACKEND");
     lua_pushinteger(L, SAUDIO_LOGITEM_AAUDIO_CREATE_STREAMBUILDER_FAILED);
-    lua_setfield(L, -2, "LOGITEM_AAUDIO_CREATE_STREAMBUILDER_FAILED");
+    lua_setfield(L, -2, "AAUDIO_CREATE_STREAMBUILDER_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_COREAUDIO_NEW_OUTPUT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_COREAUDIO_NEW_OUTPUT_FAILED");
+    lua_setfield(L, -2, "COREAUDIO_NEW_OUTPUT_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_COREAUDIO_ALLOCATE_BUFFER_FAILED);
-    lua_setfield(L, -2, "LOGITEM_COREAUDIO_ALLOCATE_BUFFER_FAILED");
+    lua_setfield(L, -2, "COREAUDIO_ALLOCATE_BUFFER_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_COREAUDIO_START_FAILED);
-    lua_setfield(L, -2, "LOGITEM_COREAUDIO_START_FAILED");
+    lua_setfield(L, -2, "COREAUDIO_START_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_BACKEND_BUFFER_SIZE_ISNT_MULTIPLE_OF_PACKET_SIZE);
-    lua_setfield(L, -2, "LOGITEM_BACKEND_BUFFER_SIZE_ISNT_MULTIPLE_OF_PACKET_SIZE");
+    lua_setfield(L, -2, "BACKEND_BUFFER_SIZE_ISNT_MULTIPLE_OF_PACKET_SIZE");
     lua_pushinteger(L, SAUDIO_LOGITEM_VITA_SCEAUDIO_OPEN_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VITA_SCEAUDIO_OPEN_FAILED");
+    lua_setfield(L, -2, "VITA_SCEAUDIO_OPEN_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_VITA_PTHREAD_CREATE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VITA_PTHREAD_CREATE_FAILED");
+    lua_setfield(L, -2, "VITA_PTHREAD_CREATE_FAILED");
     lua_pushinteger(L, SAUDIO_LOGITEM_N3DS_NDSP_OPEN_FAILED);
-    lua_setfield(L, -2, "LOGITEM_N3DS_NDSP_OPEN_FAILED");
+    lua_setfield(L, -2, "N3DS_NDSP_OPEN_FAILED");
     lua_setfield(L, -2, "LogItem");
 }
 
 static void register_saudio_n3ds_ndspinterptype(lua_State *L) {
     lua_newtable(L);
     lua_pushinteger(L, 0);
-    lua_setfield(L, -2, "DSP_INTERP_POLYPHASE");
+    lua_setfield(L, -2, "N3DS_DSP_INTERP_POLYPHASE");
     lua_pushinteger(L, 1);
-    lua_setfield(L, -2, "DSP_INTERP_LINEAR");
+    lua_setfield(L, -2, "N3DS_DSP_INTERP_LINEAR");
     lua_pushinteger(L, 2);
-    lua_setfield(L, -2, "DSP_INTERP_NONE");
+    lua_setfield(L, -2, "N3DS_DSP_INTERP_NONE");
     lua_setfield(L, -2, "N3dsNdspinterptype");
 }
 

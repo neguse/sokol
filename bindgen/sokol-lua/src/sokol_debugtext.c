@@ -23,6 +23,15 @@ static int l_sdtx_logger_t_new(lua_State *L) {
     sdtx_logger_t* ud = (sdtx_logger_t*)lua_newuserdatauv(L, sizeof(sdtx_logger_t), 0);
     memset(ud, 0, sizeof(sdtx_logger_t));
     luaL_setmetatable(L, "sokol.Logger");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -54,6 +63,15 @@ static int l_sdtx_context_new(lua_State *L) {
     sdtx_context* ud = (sdtx_context*)lua_newuserdatauv(L, sizeof(sdtx_context), 0);
     memset(ud, 0, sizeof(sdtx_context));
     luaL_setmetatable(L, "sokol.Context");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "id");
+        if (!lua_isnil(L, -1)) {
+            ud->id = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -85,6 +103,20 @@ static int l_sdtx_range_new(lua_State *L) {
     sdtx_range* ud = (sdtx_range*)lua_newuserdatauv(L, sizeof(sdtx_range), 0);
     memset(ud, 0, sizeof(sdtx_range));
     luaL_setmetatable(L, "sokol.Range");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "ptr");
+        if (!lua_isnil(L, -1)) {
+            ud->ptr = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "size");
+        if (!lua_isnil(L, -1)) {
+            ud->size = (size_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -130,6 +162,36 @@ static int l_sdtx_font_desc_t_new(lua_State *L) {
     sdtx_font_desc_t* ud = (sdtx_font_desc_t*)lua_newuserdatauv(L, sizeof(sdtx_font_desc_t), 0);
     memset(ud, 0, sizeof(sdtx_font_desc_t));
     luaL_setmetatable(L, "sokol.FontDesc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "data");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sdtx_range_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sdtx_range* val = (sdtx_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->data = *val;
+                lua_pop(L, 1);
+            } else {
+                sdtx_range* val = (sdtx_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->data = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "first_char");
+        if (!lua_isnil(L, -1)) {
+            ud->first_char = (uint8_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "last_char");
+        if (!lua_isnil(L, -1)) {
+            ud->last_char = (uint8_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -192,6 +254,50 @@ static int l_sdtx_context_desc_t_new(lua_State *L) {
     sdtx_context_desc_t* ud = (sdtx_context_desc_t*)lua_newuserdatauv(L, sizeof(sdtx_context_desc_t), 0);
     memset(ud, 0, sizeof(sdtx_context_desc_t));
     luaL_setmetatable(L, "sokol.ContextDesc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "max_commands");
+        if (!lua_isnil(L, -1)) {
+            ud->max_commands = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "char_buf_size");
+        if (!lua_isnil(L, -1)) {
+            ud->char_buf_size = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "canvas_width");
+        if (!lua_isnil(L, -1)) {
+            ud->canvas_width = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "canvas_height");
+        if (!lua_isnil(L, -1)) {
+            ud->canvas_height = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "tab_width");
+        if (!lua_isnil(L, -1)) {
+            ud->tab_width = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "color_format");
+        if (!lua_isnil(L, -1)) {
+            ud->color_format = (sg_pixel_format)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth_format");
+        if (!lua_isnil(L, -1)) {
+            ud->depth_format = (sg_pixel_format)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "sample_count");
+        if (!lua_isnil(L, -1)) {
+            ud->sample_count = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -321,6 +427,15 @@ static int l_sdtx_allocator_t_new(lua_State *L) {
     sdtx_allocator_t* ud = (sdtx_allocator_t*)lua_newuserdatauv(L, sizeof(sdtx_allocator_t), 0);
     memset(ud, 0, sizeof(sdtx_allocator_t));
     luaL_setmetatable(L, "sokol.Allocator");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -352,6 +467,90 @@ static int l_sdtx_desc_t_new(lua_State *L) {
     sdtx_desc_t* ud = (sdtx_desc_t*)lua_newuserdatauv(L, sizeof(sdtx_desc_t), 0);
     memset(ud, 0, sizeof(sdtx_desc_t));
     luaL_setmetatable(L, "sokol.Desc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "context_pool_size");
+        if (!lua_isnil(L, -1)) {
+            ud->context_pool_size = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "printf_buf_size");
+        if (!lua_isnil(L, -1)) {
+            ud->printf_buf_size = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "fonts");
+        if (lua_istable(L, -1)) {
+            for (int i = 0; i < 8; i++) {
+                lua_rawgeti(L, -1, i + 1);
+                if (!lua_isnil(L, -1)) {
+                    if (lua_istable(L, -1)) {
+                        /* Initialize from inline table */
+                        lua_pushcfunction(L, l_sdtx_font_desc_t_new);
+                        lua_pushvalue(L, -2);
+                        lua_call(L, 1, 1);
+                        sdtx_font_desc_t* val = (sdtx_font_desc_t*)luaL_testudata(L, -1, "sokol.FontDesc");
+                        if (val) ud->fonts[i] = *val;
+                        lua_pop(L, 1);
+                    } else {
+                        sdtx_font_desc_t* val = (sdtx_font_desc_t*)luaL_testudata(L, -1, "sokol.FontDesc");
+                        if (val) ud->fonts[i] = *val;
+                    }
+                }
+                lua_pop(L, 1);
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "context");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sdtx_context_desc_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sdtx_context_desc_t* val = (sdtx_context_desc_t*)luaL_testudata(L, -1, "sokol.ContextDesc");
+                if (val) ud->context = *val;
+                lua_pop(L, 1);
+            } else {
+                sdtx_context_desc_t* val = (sdtx_context_desc_t*)luaL_testudata(L, -1, "sokol.ContextDesc");
+                if (val) ud->context = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "allocator");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sdtx_allocator_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sdtx_allocator_t* val = (sdtx_allocator_t*)luaL_testudata(L, -1, "sokol.Allocator");
+                if (val) ud->allocator = *val;
+                lua_pop(L, 1);
+            } else {
+                sdtx_allocator_t* val = (sdtx_allocator_t*)luaL_testudata(L, -1, "sokol.Allocator");
+                if (val) ud->allocator = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "logger");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sdtx_logger_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sdtx_logger_t* val = (sdtx_logger_t*)luaL_testudata(L, -1, "sokol.Logger");
+                if (val) ud->logger = *val;
+                lua_pop(L, 1);
+            } else {
+                sdtx_logger_t* val = (sdtx_logger_t*)luaL_testudata(L, -1, "sokol.Logger");
+                if (val) ud->logger = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -381,14 +580,27 @@ static int l_sdtx_desc_t_set_printf_buf_size(lua_State *L) {
 
 static int l_sdtx_desc_t_get_fonts(lua_State *L) {
     sdtx_desc_t* self = (sdtx_desc_t*)luaL_checkudata(L, 1, "sokol.Desc");
-    /* TODO: array field fonts */
-    lua_pushnil(L);
+    lua_newtable(L);
+    for (int i = 0; i < 8; i++) {
+        sdtx_font_desc_t* ud = (sdtx_font_desc_t*)lua_newuserdatauv(L, sizeof(sdtx_font_desc_t), 0);
+        *ud = self->fonts[i];
+        luaL_setmetatable(L, "sokol.FontDesc");
+        lua_rawseti(L, -2, i + 1);
+    }
     return 1;
 }
 
 static int l_sdtx_desc_t_set_fonts(lua_State *L) {
     sdtx_desc_t* self = (sdtx_desc_t*)luaL_checkudata(L, 1, "sokol.Desc");
-    /* TODO: array field fonts */
+    luaL_checktype(L, 2, LUA_TTABLE);
+    for (int i = 0; i < 8; i++) {
+        lua_rawgeti(L, 2, i + 1);
+        if (!lua_isnil(L, -1)) {
+            sdtx_font_desc_t* val = (sdtx_font_desc_t*)luaL_testudata(L, -1, "sokol.FontDesc");
+            if (val) self->fonts[i] = *val;
+        }
+        lua_pop(L, 1);
+    }
     return 0;
 }
 

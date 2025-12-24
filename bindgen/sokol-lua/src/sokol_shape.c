@@ -23,6 +23,20 @@ static int l_sshape_range_new(lua_State *L) {
     sshape_range* ud = (sshape_range*)lua_newuserdatauv(L, sizeof(sshape_range), 0);
     memset(ud, 0, sizeof(sshape_range));
     luaL_setmetatable(L, "sokol.Range");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "ptr");
+        if (!lua_isnil(L, -1)) {
+            ud->ptr = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "size");
+        if (!lua_isnil(L, -1)) {
+            ud->size = (size_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -68,19 +82,23 @@ static int l_sshape_mat4_t_new(lua_State *L) {
     sshape_mat4_t* ud = (sshape_mat4_t*)lua_newuserdatauv(L, sizeof(sshape_mat4_t), 0);
     memset(ud, 0, sizeof(sshape_mat4_t));
     luaL_setmetatable(L, "sokol.Mat4");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+    }
     return 1;
 }
 
 static int l_sshape_mat4_t_get_m(lua_State *L) {
     sshape_mat4_t* self = (sshape_mat4_t*)luaL_checkudata(L, 1, "sokol.Mat4");
-    /* TODO: array field m */
+    /* 2D array not yet supported */
     lua_pushnil(L);
     return 1;
 }
 
 static int l_sshape_mat4_t_set_m(lua_State *L) {
     sshape_mat4_t* self = (sshape_mat4_t*)luaL_checkudata(L, 1, "sokol.Mat4");
-    /* TODO: array field m */
+    /* 2D array not yet supported */
     return 0;
 }
 
@@ -100,6 +118,45 @@ static int l_sshape_vertex_t_new(lua_State *L) {
     sshape_vertex_t* ud = (sshape_vertex_t*)lua_newuserdatauv(L, sizeof(sshape_vertex_t), 0);
     memset(ud, 0, sizeof(sshape_vertex_t));
     luaL_setmetatable(L, "sokol.Vertex");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "x");
+        if (!lua_isnil(L, -1)) {
+            ud->x = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "y");
+        if (!lua_isnil(L, -1)) {
+            ud->y = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "z");
+        if (!lua_isnil(L, -1)) {
+            ud->z = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "normal");
+        if (!lua_isnil(L, -1)) {
+            ud->normal = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "u");
+        if (!lua_isnil(L, -1)) {
+            ud->u = (uint16_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "v");
+        if (!lua_isnil(L, -1)) {
+            ud->v = (uint16_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "color");
+        if (!lua_isnil(L, -1)) {
+            ud->color = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -215,6 +272,20 @@ static int l_sshape_element_range_t_new(lua_State *L) {
     sshape_element_range_t* ud = (sshape_element_range_t*)lua_newuserdatauv(L, sizeof(sshape_element_range_t), 0);
     memset(ud, 0, sizeof(sshape_element_range_t));
     luaL_setmetatable(L, "sokol.ElementRange");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "base_element");
+        if (!lua_isnil(L, -1)) {
+            ud->base_element = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "num_elements");
+        if (!lua_isnil(L, -1)) {
+            ud->num_elements = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -260,6 +331,20 @@ static int l_sshape_sizes_item_t_new(lua_State *L) {
     sshape_sizes_item_t* ud = (sshape_sizes_item_t*)lua_newuserdatauv(L, sizeof(sshape_sizes_item_t), 0);
     memset(ud, 0, sizeof(sshape_sizes_item_t));
     luaL_setmetatable(L, "sokol.SizesItem");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "num");
+        if (!lua_isnil(L, -1)) {
+            ud->num = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "size");
+        if (!lua_isnil(L, -1)) {
+            ud->size = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -305,6 +390,42 @@ static int l_sshape_sizes_t_new(lua_State *L) {
     sshape_sizes_t* ud = (sshape_sizes_t*)lua_newuserdatauv(L, sizeof(sshape_sizes_t), 0);
     memset(ud, 0, sizeof(sshape_sizes_t));
     luaL_setmetatable(L, "sokol.Sizes");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "vertices");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sshape_sizes_item_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sshape_sizes_item_t* val = (sshape_sizes_item_t*)luaL_testudata(L, -1, "sokol.SizesItem");
+                if (val) ud->vertices = *val;
+                lua_pop(L, 1);
+            } else {
+                sshape_sizes_item_t* val = (sshape_sizes_item_t*)luaL_testudata(L, -1, "sokol.SizesItem");
+                if (val) ud->vertices = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "indices");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sshape_sizes_item_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sshape_sizes_item_t* val = (sshape_sizes_item_t*)luaL_testudata(L, -1, "sokol.SizesItem");
+                if (val) ud->indices = *val;
+                lua_pop(L, 1);
+            } else {
+                sshape_sizes_item_t* val = (sshape_sizes_item_t*)luaL_testudata(L, -1, "sokol.SizesItem");
+                if (val) ud->indices = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -356,6 +477,36 @@ static int l_sshape_buffer_item_t_new(lua_State *L) {
     sshape_buffer_item_t* ud = (sshape_buffer_item_t*)lua_newuserdatauv(L, sizeof(sshape_buffer_item_t), 0);
     memset(ud, 0, sizeof(sshape_buffer_item_t));
     luaL_setmetatable(L, "sokol.BufferItem");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "buffer");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sshape_range_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sshape_range* val = (sshape_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->buffer = *val;
+                lua_pop(L, 1);
+            } else {
+                sshape_range* val = (sshape_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->buffer = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "data_size");
+        if (!lua_isnil(L, -1)) {
+            ud->data_size = (size_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "shape_offset");
+        if (!lua_isnil(L, -1)) {
+            ud->shape_offset = (size_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -418,6 +569,47 @@ static int l_sshape_buffer_t_new(lua_State *L) {
     sshape_buffer_t* ud = (sshape_buffer_t*)lua_newuserdatauv(L, sizeof(sshape_buffer_t), 0);
     memset(ud, 0, sizeof(sshape_buffer_t));
     luaL_setmetatable(L, "sokol.Buffer");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "valid");
+        if (!lua_isnil(L, -1)) {
+            ud->valid = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "vertices");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sshape_buffer_item_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sshape_buffer_item_t* val = (sshape_buffer_item_t*)luaL_testudata(L, -1, "sokol.BufferItem");
+                if (val) ud->vertices = *val;
+                lua_pop(L, 1);
+            } else {
+                sshape_buffer_item_t* val = (sshape_buffer_item_t*)luaL_testudata(L, -1, "sokol.BufferItem");
+                if (val) ud->vertices = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "indices");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sshape_buffer_item_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sshape_buffer_item_t* val = (sshape_buffer_item_t*)luaL_testudata(L, -1, "sokol.BufferItem");
+                if (val) ud->indices = *val;
+                lua_pop(L, 1);
+            } else {
+                sshape_buffer_item_t* val = (sshape_buffer_item_t*)luaL_testudata(L, -1, "sokol.BufferItem");
+                if (val) ud->indices = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -483,6 +675,56 @@ static int l_sshape_plane_t_new(lua_State *L) {
     sshape_plane_t* ud = (sshape_plane_t*)lua_newuserdatauv(L, sizeof(sshape_plane_t), 0);
     memset(ud, 0, sizeof(sshape_plane_t));
     luaL_setmetatable(L, "sokol.Plane");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "width");
+        if (!lua_isnil(L, -1)) {
+            ud->width = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth");
+        if (!lua_isnil(L, -1)) {
+            ud->depth = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "tiles");
+        if (!lua_isnil(L, -1)) {
+            ud->tiles = (uint16_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "color");
+        if (!lua_isnil(L, -1)) {
+            ud->color = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "random_colors");
+        if (!lua_isnil(L, -1)) {
+            ud->random_colors = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "merge");
+        if (!lua_isnil(L, -1)) {
+            ud->merge = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "transform");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sshape_mat4_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sshape_mat4_t* val = (sshape_mat4_t*)luaL_testudata(L, -1, "sokol.Mat4");
+                if (val) ud->transform = *val;
+                lua_pop(L, 1);
+            } else {
+                sshape_mat4_t* val = (sshape_mat4_t*)luaL_testudata(L, -1, "sokol.Mat4");
+                if (val) ud->transform = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -601,6 +843,61 @@ static int l_sshape_box_t_new(lua_State *L) {
     sshape_box_t* ud = (sshape_box_t*)lua_newuserdatauv(L, sizeof(sshape_box_t), 0);
     memset(ud, 0, sizeof(sshape_box_t));
     luaL_setmetatable(L, "sokol.Box");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "width");
+        if (!lua_isnil(L, -1)) {
+            ud->width = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "height");
+        if (!lua_isnil(L, -1)) {
+            ud->height = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth");
+        if (!lua_isnil(L, -1)) {
+            ud->depth = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "tiles");
+        if (!lua_isnil(L, -1)) {
+            ud->tiles = (uint16_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "color");
+        if (!lua_isnil(L, -1)) {
+            ud->color = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "random_colors");
+        if (!lua_isnil(L, -1)) {
+            ud->random_colors = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "merge");
+        if (!lua_isnil(L, -1)) {
+            ud->merge = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "transform");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sshape_mat4_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sshape_mat4_t* val = (sshape_mat4_t*)luaL_testudata(L, -1, "sokol.Mat4");
+                if (val) ud->transform = *val;
+                lua_pop(L, 1);
+            } else {
+                sshape_mat4_t* val = (sshape_mat4_t*)luaL_testudata(L, -1, "sokol.Mat4");
+                if (val) ud->transform = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -733,6 +1030,56 @@ static int l_sshape_sphere_t_new(lua_State *L) {
     sshape_sphere_t* ud = (sshape_sphere_t*)lua_newuserdatauv(L, sizeof(sshape_sphere_t), 0);
     memset(ud, 0, sizeof(sshape_sphere_t));
     luaL_setmetatable(L, "sokol.Sphere");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "radius");
+        if (!lua_isnil(L, -1)) {
+            ud->radius = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "slices");
+        if (!lua_isnil(L, -1)) {
+            ud->slices = (uint16_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "stacks");
+        if (!lua_isnil(L, -1)) {
+            ud->stacks = (uint16_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "color");
+        if (!lua_isnil(L, -1)) {
+            ud->color = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "random_colors");
+        if (!lua_isnil(L, -1)) {
+            ud->random_colors = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "merge");
+        if (!lua_isnil(L, -1)) {
+            ud->merge = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "transform");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sshape_mat4_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sshape_mat4_t* val = (sshape_mat4_t*)luaL_testudata(L, -1, "sokol.Mat4");
+                if (val) ud->transform = *val;
+                lua_pop(L, 1);
+            } else {
+                sshape_mat4_t* val = (sshape_mat4_t*)luaL_testudata(L, -1, "sokol.Mat4");
+                if (val) ud->transform = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -851,6 +1198,61 @@ static int l_sshape_cylinder_t_new(lua_State *L) {
     sshape_cylinder_t* ud = (sshape_cylinder_t*)lua_newuserdatauv(L, sizeof(sshape_cylinder_t), 0);
     memset(ud, 0, sizeof(sshape_cylinder_t));
     luaL_setmetatable(L, "sokol.Cylinder");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "radius");
+        if (!lua_isnil(L, -1)) {
+            ud->radius = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "height");
+        if (!lua_isnil(L, -1)) {
+            ud->height = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "slices");
+        if (!lua_isnil(L, -1)) {
+            ud->slices = (uint16_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "stacks");
+        if (!lua_isnil(L, -1)) {
+            ud->stacks = (uint16_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "color");
+        if (!lua_isnil(L, -1)) {
+            ud->color = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "random_colors");
+        if (!lua_isnil(L, -1)) {
+            ud->random_colors = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "merge");
+        if (!lua_isnil(L, -1)) {
+            ud->merge = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "transform");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sshape_mat4_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sshape_mat4_t* val = (sshape_mat4_t*)luaL_testudata(L, -1, "sokol.Mat4");
+                if (val) ud->transform = *val;
+                lua_pop(L, 1);
+            } else {
+                sshape_mat4_t* val = (sshape_mat4_t*)luaL_testudata(L, -1, "sokol.Mat4");
+                if (val) ud->transform = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -983,6 +1385,61 @@ static int l_sshape_torus_t_new(lua_State *L) {
     sshape_torus_t* ud = (sshape_torus_t*)lua_newuserdatauv(L, sizeof(sshape_torus_t), 0);
     memset(ud, 0, sizeof(sshape_torus_t));
     luaL_setmetatable(L, "sokol.Torus");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "radius");
+        if (!lua_isnil(L, -1)) {
+            ud->radius = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "ring_radius");
+        if (!lua_isnil(L, -1)) {
+            ud->ring_radius = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "sides");
+        if (!lua_isnil(L, -1)) {
+            ud->sides = (uint16_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "rings");
+        if (!lua_isnil(L, -1)) {
+            ud->rings = (uint16_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "color");
+        if (!lua_isnil(L, -1)) {
+            ud->color = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "random_colors");
+        if (!lua_isnil(L, -1)) {
+            ud->random_colors = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "merge");
+        if (!lua_isnil(L, -1)) {
+            ud->merge = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "transform");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sshape_mat4_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sshape_mat4_t* val = (sshape_mat4_t*)luaL_testudata(L, -1, "sokol.Mat4");
+                if (val) ud->transform = *val;
+                lua_pop(L, 1);
+            } else {
+                sshape_mat4_t* val = (sshape_mat4_t*)luaL_testudata(L, -1, "sokol.Mat4");
+                if (val) ud->transform = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1223,7 +1680,7 @@ static int l_sshape_vertex_buffer_desc(lua_State *L) {
     sg_buffer_desc result = sshape_vertex_buffer_desc(buf);
     sg_buffer_desc* ud = (sg_buffer_desc*)lua_newuserdatauv(L, sizeof(sg_buffer_desc), 0);
     *ud = result;
-    luaL_setmetatable(L, "sokol.SgBufferDesc");
+    luaL_setmetatable(L, "sokol.BufferDesc");
     return 1;
 }
 
@@ -1232,7 +1689,7 @@ static int l_sshape_index_buffer_desc(lua_State *L) {
     sg_buffer_desc result = sshape_index_buffer_desc(buf);
     sg_buffer_desc* ud = (sg_buffer_desc*)lua_newuserdatauv(L, sizeof(sg_buffer_desc), 0);
     *ud = result;
-    luaL_setmetatable(L, "sokol.SgBufferDesc");
+    luaL_setmetatable(L, "sokol.BufferDesc");
     return 1;
 }
 
@@ -1240,7 +1697,7 @@ static int l_sshape_vertex_buffer_layout_state(lua_State *L) {
     sg_vertex_buffer_layout_state result = sshape_vertex_buffer_layout_state();
     sg_vertex_buffer_layout_state* ud = (sg_vertex_buffer_layout_state*)lua_newuserdatauv(L, sizeof(sg_vertex_buffer_layout_state), 0);
     *ud = result;
-    luaL_setmetatable(L, "sokol.SgVertexBufferLayoutState");
+    luaL_setmetatable(L, "sokol.VertexBufferLayoutState");
     return 1;
 }
 
@@ -1248,7 +1705,7 @@ static int l_sshape_position_vertex_attr_state(lua_State *L) {
     sg_vertex_attr_state result = sshape_position_vertex_attr_state();
     sg_vertex_attr_state* ud = (sg_vertex_attr_state*)lua_newuserdatauv(L, sizeof(sg_vertex_attr_state), 0);
     *ud = result;
-    luaL_setmetatable(L, "sokol.SgVertexAttrState");
+    luaL_setmetatable(L, "sokol.VertexAttrState");
     return 1;
 }
 
@@ -1256,7 +1713,7 @@ static int l_sshape_normal_vertex_attr_state(lua_State *L) {
     sg_vertex_attr_state result = sshape_normal_vertex_attr_state();
     sg_vertex_attr_state* ud = (sg_vertex_attr_state*)lua_newuserdatauv(L, sizeof(sg_vertex_attr_state), 0);
     *ud = result;
-    luaL_setmetatable(L, "sokol.SgVertexAttrState");
+    luaL_setmetatable(L, "sokol.VertexAttrState");
     return 1;
 }
 
@@ -1264,7 +1721,7 @@ static int l_sshape_texcoord_vertex_attr_state(lua_State *L) {
     sg_vertex_attr_state result = sshape_texcoord_vertex_attr_state();
     sg_vertex_attr_state* ud = (sg_vertex_attr_state*)lua_newuserdatauv(L, sizeof(sg_vertex_attr_state), 0);
     *ud = result;
-    luaL_setmetatable(L, "sokol.SgVertexAttrState");
+    luaL_setmetatable(L, "sokol.VertexAttrState");
     return 1;
 }
 
@@ -1272,7 +1729,7 @@ static int l_sshape_color_vertex_attr_state(lua_State *L) {
     sg_vertex_attr_state result = sshape_color_vertex_attr_state();
     sg_vertex_attr_state* ud = (sg_vertex_attr_state*)lua_newuserdatauv(L, sizeof(sg_vertex_attr_state), 0);
     *ud = result;
-    luaL_setmetatable(L, "sokol.SgVertexAttrState");
+    luaL_setmetatable(L, "sokol.VertexAttrState");
     return 1;
 }
 

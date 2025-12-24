@@ -23,6 +23,15 @@ static int l_sgl_logger_t_new(lua_State *L) {
     sgl_logger_t* ud = (sgl_logger_t*)lua_newuserdatauv(L, sizeof(sgl_logger_t), 0);
     memset(ud, 0, sizeof(sgl_logger_t));
     luaL_setmetatable(L, "sokol.Logger");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -54,6 +63,15 @@ static int l_sgl_pipeline_new(lua_State *L) {
     sgl_pipeline* ud = (sgl_pipeline*)lua_newuserdatauv(L, sizeof(sgl_pipeline), 0);
     memset(ud, 0, sizeof(sgl_pipeline));
     luaL_setmetatable(L, "sokol.Pipeline");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "id");
+        if (!lua_isnil(L, -1)) {
+            ud->id = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -85,6 +103,15 @@ static int l_sgl_context_new(lua_State *L) {
     sgl_context* ud = (sgl_context*)lua_newuserdatauv(L, sizeof(sgl_context), 0);
     memset(ud, 0, sizeof(sgl_context));
     luaL_setmetatable(L, "sokol.Context");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "id");
+        if (!lua_isnil(L, -1)) {
+            ud->id = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -116,6 +143,45 @@ static int l_sgl_error_t_new(lua_State *L) {
     sgl_error_t* ud = (sgl_error_t*)lua_newuserdatauv(L, sizeof(sgl_error_t), 0);
     memset(ud, 0, sizeof(sgl_error_t));
     luaL_setmetatable(L, "sokol.Error");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "any");
+        if (!lua_isnil(L, -1)) {
+            ud->any = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "vertices_full");
+        if (!lua_isnil(L, -1)) {
+            ud->vertices_full = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "uniforms_full");
+        if (!lua_isnil(L, -1)) {
+            ud->uniforms_full = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "commands_full");
+        if (!lua_isnil(L, -1)) {
+            ud->commands_full = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "stack_overflow");
+        if (!lua_isnil(L, -1)) {
+            ud->stack_overflow = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "stack_underflow");
+        if (!lua_isnil(L, -1)) {
+            ud->stack_underflow = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "no_context");
+        if (!lua_isnil(L, -1)) {
+            ud->no_context = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -231,6 +297,35 @@ static int l_sgl_context_desc_t_new(lua_State *L) {
     sgl_context_desc_t* ud = (sgl_context_desc_t*)lua_newuserdatauv(L, sizeof(sgl_context_desc_t), 0);
     memset(ud, 0, sizeof(sgl_context_desc_t));
     luaL_setmetatable(L, "sokol.ContextDesc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "max_vertices");
+        if (!lua_isnil(L, -1)) {
+            ud->max_vertices = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "max_commands");
+        if (!lua_isnil(L, -1)) {
+            ud->max_commands = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "color_format");
+        if (!lua_isnil(L, -1)) {
+            ud->color_format = (sg_pixel_format)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth_format");
+        if (!lua_isnil(L, -1)) {
+            ud->depth_format = (sg_pixel_format)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "sample_count");
+        if (!lua_isnil(L, -1)) {
+            ud->sample_count = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -318,6 +413,15 @@ static int l_sgl_allocator_t_new(lua_State *L) {
     sgl_allocator_t* ud = (sgl_allocator_t*)lua_newuserdatauv(L, sizeof(sgl_allocator_t), 0);
     memset(ud, 0, sizeof(sgl_allocator_t));
     luaL_setmetatable(L, "sokol.Allocator");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -349,6 +453,82 @@ static int l_sgl_desc_t_new(lua_State *L) {
     sgl_desc_t* ud = (sgl_desc_t*)lua_newuserdatauv(L, sizeof(sgl_desc_t), 0);
     memset(ud, 0, sizeof(sgl_desc_t));
     luaL_setmetatable(L, "sokol.Desc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "max_vertices");
+        if (!lua_isnil(L, -1)) {
+            ud->max_vertices = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "max_commands");
+        if (!lua_isnil(L, -1)) {
+            ud->max_commands = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "context_pool_size");
+        if (!lua_isnil(L, -1)) {
+            ud->context_pool_size = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "pipeline_pool_size");
+        if (!lua_isnil(L, -1)) {
+            ud->pipeline_pool_size = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "color_format");
+        if (!lua_isnil(L, -1)) {
+            ud->color_format = (sg_pixel_format)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth_format");
+        if (!lua_isnil(L, -1)) {
+            ud->depth_format = (sg_pixel_format)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "sample_count");
+        if (!lua_isnil(L, -1)) {
+            ud->sample_count = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "face_winding");
+        if (!lua_isnil(L, -1)) {
+            ud->face_winding = (sg_face_winding)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "allocator");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sgl_allocator_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sgl_allocator_t* val = (sgl_allocator_t*)luaL_testudata(L, -1, "sokol.Allocator");
+                if (val) ud->allocator = *val;
+                lua_pop(L, 1);
+            } else {
+                sgl_allocator_t* val = (sgl_allocator_t*)luaL_testudata(L, -1, "sokol.Allocator");
+                if (val) ud->allocator = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "logger");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sgl_logger_t_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sgl_logger_t* val = (sgl_logger_t*)luaL_testudata(L, -1, "sokol.Logger");
+                if (val) ud->logger = *val;
+                lua_pop(L, 1);
+            } else {
+                sgl_logger_t* val = (sgl_logger_t*)luaL_testudata(L, -1, "sokol.Logger");
+                if (val) ud->logger = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -629,7 +809,7 @@ static int l_sgl_context_draw_layer(lua_State *L) {
 }
 
 static int l_sgl_make_pipeline(lua_State *L) {
-    const sg_pipeline_desc* desc = (const sg_pipeline_desc*)luaL_checkudata(L, 1, "sokol.SgPipelineDesc");
+    const sg_pipeline_desc* desc = (const sg_pipeline_desc*)luaL_checkudata(L, 1, "sokol.PipelineDesc");
     sgl_pipeline result = sgl_make_pipeline(desc);
     sgl_pipeline* ud = (sgl_pipeline*)lua_newuserdatauv(L, sizeof(sgl_pipeline), 0);
     *ud = result;
@@ -640,7 +820,7 @@ static int l_sgl_make_pipeline(lua_State *L) {
 static int l_sgl_context_make_pipeline(lua_State *L) {
     sgl_context* ctx_ptr = (sgl_context*)luaL_checkudata(L, 1, "sokol.Context");
     sgl_context ctx = *ctx_ptr;
-    const sg_pipeline_desc* desc = (const sg_pipeline_desc*)luaL_checkudata(L, 2, "sokol.SgPipelineDesc");
+    const sg_pipeline_desc* desc = (const sg_pipeline_desc*)luaL_checkudata(L, 2, "sokol.PipelineDesc");
     sgl_pipeline result = sgl_context_make_pipeline(ctx, desc);
     sgl_pipeline* ud = (sgl_pipeline*)lua_newuserdatauv(L, sizeof(sgl_pipeline), 0);
     *ud = result;
@@ -711,9 +891,9 @@ static int l_sgl_disable_texture(lua_State *L) {
 }
 
 static int l_sgl_texture(lua_State *L) {
-    sg_view* tex_view_ptr = (sg_view*)luaL_checkudata(L, 1, "sokol.SgView");
+    sg_view* tex_view_ptr = (sg_view*)luaL_checkudata(L, 1, "sokol.View");
     sg_view tex_view = *tex_view_ptr;
-    sg_sampler* smp_ptr = (sg_sampler*)luaL_checkudata(L, 2, "sokol.SgSampler");
+    sg_sampler* smp_ptr = (sg_sampler*)luaL_checkudata(L, 2, "sokol.Sampler");
     sg_sampler smp = *smp_ptr;
     sgl_texture(tex_view, smp);
     return 0;

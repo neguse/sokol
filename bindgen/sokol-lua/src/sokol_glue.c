@@ -6,6 +6,7 @@
 
 #include "sokol_gfx.h"
 #include "sokol_app.h"
+#include "sokol_app.h"
 #include "sokol_glue.h"
 
 #ifndef SOKOL_LUA_API
@@ -24,7 +25,7 @@ static int l_sglue_environment(lua_State *L) {
     sg_environment result = sglue_environment();
     sg_environment* ud = (sg_environment*)lua_newuserdatauv(L, sizeof(sg_environment), 0);
     *ud = result;
-    luaL_setmetatable(L, "sokol.SgEnvironment");
+    luaL_setmetatable(L, "sokol.Environment");
     return 1;
 }
 
@@ -32,7 +33,7 @@ static int l_sglue_swapchain(lua_State *L) {
     sg_swapchain result = sglue_swapchain();
     sg_swapchain* ud = (sg_swapchain*)lua_newuserdatauv(L, sizeof(sg_swapchain), 0);
     *ud = result;
-    luaL_setmetatable(L, "sokol.SgSwapchain");
+    luaL_setmetatable(L, "sokol.Swapchain");
     return 1;
 }
 

@@ -92,6 +92,16 @@ def as_snake_case(s, prefix):
         outp = outp[len(prefix):]
     return outp
 
+# All known prefixes for type name detection
+all_prefixes = ['sg_', 'sapp_', 'slog_', 'stm_', 'saudio_', 'sgl_', 'sdtx_', 'sshape_', 'sglue_']
+
+def get_type_prefix(type_name):
+    """Get the original prefix for a type (e.g., sg_swapchain -> sg_)"""
+    for pfx in all_prefixes:
+        if type_name.startswith(pfx):
+            return pfx
+    return None
+
 # prefix_bla_blub to BlaBlub
 def as_pascal_case(s, prefix):
     parts = s.lower().split('_')
@@ -101,6 +111,16 @@ def as_pascal_case(s, prefix):
         if part != 't':
             outp += part.capitalize()
     return outp
+
+def as_struct_metatable_name(type_name):
+    """Get the metatable name for a struct type, using its original prefix"""
+    # Detect the type's original prefix
+    type_prefix = get_type_prefix(type_name)
+    if type_prefix:
+        return as_pascal_case(type_name, type_prefix)
+    # Fallback: remove all underscores and capitalize
+    parts = type_name.lower().split('_')
+    return ''.join(part.capitalize() for part in parts if part != 't')
 
 def is_prim_type(s):
     return s in ['int', 'bool', 'char', 'int8_t', 'uint8_t', 'int16_t', 'uint16_t',
@@ -146,7 +166,7 @@ def get_lua_push_code(type_str, var_name, prefix):
     elif util.is_string_ptr(type_str):
         return f'lua_pushstring(L, {var_name});'
     elif is_struct_type(type_str):
-        struct_name = as_pascal_case(type_str, prefix)
+        struct_name = as_struct_metatable_name(type_str)
         return f'{type_str}* ud = ({type_str}*)lua_newuserdatauv(L, sizeof({type_str}), 0);\n    *ud = {var_name};\n    luaL_setmetatable(L, "sokol.{struct_name}");'
     elif is_enum_type(type_str):
         return f'lua_pushinteger(L, (lua_Integer){var_name});'
@@ -166,15 +186,15 @@ def get_lua_to_code(type_str, arg_index, var_name, prefix):
     elif util.is_string_ptr(type_str):
         return f'const char* {var_name} = luaL_checkstring(L, {arg_index});'
     elif is_struct_type(type_str):
-        struct_name = as_pascal_case(type_str, prefix)
+        struct_name = as_struct_metatable_name(type_str)
         return f'{type_str}* {var_name}_ptr = ({type_str}*)luaL_checkudata(L, {arg_index}, "sokol.{struct_name}");\n    {type_str} {var_name} = *{var_name}_ptr;'
     elif is_const_struct_ptr(type_str):
         inner_type = util.extract_ptr_type(type_str)
-        struct_name = as_pascal_case(inner_type, prefix)
+        struct_name = as_struct_metatable_name(inner_type)
         return f'const {inner_type}* {var_name} = (const {inner_type}*)luaL_checkudata(L, {arg_index}, "sokol.{struct_name}");'
     elif is_struct_ptr(type_str):
         inner_type = util.extract_ptr_type(type_str)
-        struct_name = as_pascal_case(inner_type, prefix)
+        struct_name = as_struct_metatable_name(inner_type)
         return f'{inner_type}* {var_name} = ({inner_type}*)luaL_checkudata(L, {arg_index}, "sokol.{struct_name}");'
     elif is_enum_type(type_str):
         return f'{type_str} {var_name} = ({type_str})luaL_checkinteger(L, {arg_index});'
@@ -224,12 +244,97 @@ def gen_func_wrapper(decl, prefix):
     l('}')
     l('')
 
-def gen_struct_new(struct_name, c_struct_name, prefix):
-    """Generate a constructor function for a struct"""
+def gen_array_field_init(field_name, field_type, prefix):
+    """Generate code to initialize an array field from a Lua table"""
+    array_type = util.extract_array_type(field_type)
+    array_sizes = util.extract_array_sizes(field_type)
+    size = array_sizes[0]
+
+    l(f'        lua_getfield(L, 1, "{field_name}");')
+    l(f'        if (lua_istable(L, -1)) {{')
+    l(f'            for (int i = 0; i < {size}; i++) {{')
+    l(f'                lua_rawgeti(L, -1, i + 1);')
+    l(f'                if (!lua_isnil(L, -1)) {{')
+    if array_type == 'bool':
+        l(f'                    ud->{field_name}[i] = lua_toboolean(L, -1);')
+    elif is_int_type(array_type):
+        l(f'                    ud->{field_name}[i] = ({array_type})lua_tointeger(L, -1);')
+    elif is_float_type(array_type):
+        l(f'                    ud->{field_name}[i] = ({array_type})lua_tonumber(L, -1);')
+    elif is_struct_type(array_type):
+        inner_struct_name = as_struct_metatable_name(array_type)
+        l(f'                    if (lua_istable(L, -1)) {{')
+        l(f'                        /* Initialize from inline table */')
+        l(f'                        lua_pushcfunction(L, l_{array_type}_new);')
+        l(f'                        lua_pushvalue(L, -2);')
+        l(f'                        lua_call(L, 1, 1);')
+        l(f'                        {array_type}* val = ({array_type}*)luaL_testudata(L, -1, "sokol.{inner_struct_name}");')
+        l(f'                        if (val) ud->{field_name}[i] = *val;')
+        l(f'                        lua_pop(L, 1);')
+        l(f'                    }} else {{')
+        l(f'                        {array_type}* val = ({array_type}*)luaL_testudata(L, -1, "sokol.{inner_struct_name}");')
+        l(f'                        if (val) ud->{field_name}[i] = *val;')
+        l(f'                    }}')
+    elif is_enum_type(array_type):
+        l(f'                    ud->{field_name}[i] = ({array_type})lua_tointeger(L, -1);')
+    l(f'                }}')
+    l(f'                lua_pop(L, 1);')
+    l(f'            }}')
+    l(f'        }}')
+    l(f'        lua_pop(L, 1);')
+
+def gen_struct_new(struct_name, c_struct_name, fields, prefix):
+    """Generate a constructor function for a struct that accepts optional table"""
     l(f'static int l_{c_struct_name}_new(lua_State *L) {{')
     l(f'    {c_struct_name}* ud = ({c_struct_name}*)lua_newuserdatauv(L, sizeof({c_struct_name}), 0);')
     l(f'    memset(ud, 0, sizeof({c_struct_name}));')
     l(f'    luaL_setmetatable(L, "sokol.{struct_name}");')
+    l('')
+    l('    /* If first arg is a table, use it to initialize fields */')
+    l('    if (lua_istable(L, 1)) {')
+
+    for field in fields:
+        field_name = field['name']
+        field_type = field['type']
+        if util.is_func_ptr(field_type):
+            continue
+        if util.is_1d_array_type(field_type):
+            gen_array_field_init(field_name, field_type, prefix)
+            continue
+        if util.is_2d_array_type(field_type):
+            continue  # Skip 2D arrays for now
+        l(f'        lua_getfield(L, 1, "{field_name}");')
+        l(f'        if (!lua_isnil(L, -1)) {{')
+        if field_type == 'bool':
+            l(f'            ud->{field_name} = lua_toboolean(L, -1);')
+        elif is_int_type(field_type):
+            l(f'            ud->{field_name} = ({field_type})lua_tointeger(L, -1);')
+        elif is_float_type(field_type):
+            l(f'            ud->{field_name} = ({field_type})lua_tonumber(L, -1);')
+        elif util.is_string_ptr(field_type):
+            l(f'            ud->{field_name} = lua_tostring(L, -1);')
+        elif is_struct_type(field_type):
+            inner_struct_name = as_struct_metatable_name(field_type)
+            l(f'            if (lua_istable(L, -1)) {{')
+            l(f'                /* Initialize from inline table */')
+            l(f'                lua_pushcfunction(L, l_{field_type}_new);')
+            l(f'                lua_pushvalue(L, -2);')
+            l(f'                lua_call(L, 1, 1);')
+            l(f'                {field_type}* val = ({field_type}*)luaL_testudata(L, -1, "sokol.{inner_struct_name}");')
+            l(f'                if (val) ud->{field_name} = *val;')
+            l(f'                lua_pop(L, 1);')
+            l(f'            }} else {{')
+            l(f'                {field_type}* val = ({field_type}*)luaL_testudata(L, -1, "sokol.{inner_struct_name}");')
+            l(f'                if (val) ud->{field_name} = *val;')
+            l(f'            }}')
+        elif is_enum_type(field_type):
+            l(f'            ud->{field_name} = ({field_type})lua_tointeger(L, -1);')
+        elif util.is_void_ptr(field_type) or util.is_const_void_ptr(field_type):
+            l(f'            ud->{field_name} = lua_touserdata(L, -1);')
+        l('        }')
+        l('        lua_pop(L, 1);')
+
+    l('    }')
     l('    return 1;')
     l('}')
     l('')
@@ -242,9 +347,31 @@ def gen_struct_field_getter(struct_name, c_struct_name, field, prefix):
     l(f'static int l_{c_struct_name}_get_{field_name}(lua_State *L) {{')
     l(f'    {c_struct_name}* self = ({c_struct_name}*)luaL_checkudata(L, 1, "sokol.{struct_name}");')
 
-    if util.is_array_type(field_type):
-        # Arrays need special handling - return as table or userdata
-        l(f'    /* TODO: array field {field_name} */')
+    if util.is_1d_array_type(field_type):
+        array_type = util.extract_array_type(field_type)
+        array_sizes = util.extract_array_sizes(field_type)
+        size = array_sizes[0]
+        l(f'    lua_newtable(L);')
+        l(f'    for (int i = 0; i < {size}; i++) {{')
+        if array_type == 'bool':
+            l(f'        lua_pushboolean(L, self->{field_name}[i]);')
+        elif is_int_type(array_type):
+            l(f'        lua_pushinteger(L, (lua_Integer)self->{field_name}[i]);')
+        elif is_float_type(array_type):
+            l(f'        lua_pushnumber(L, (lua_Number)self->{field_name}[i]);')
+        elif is_struct_type(array_type):
+            inner_struct_name = as_struct_metatable_name(array_type)
+            l(f'        {array_type}* ud = ({array_type}*)lua_newuserdatauv(L, sizeof({array_type}), 0);')
+            l(f'        *ud = self->{field_name}[i];')
+            l(f'        luaL_setmetatable(L, "sokol.{inner_struct_name}");')
+        elif is_enum_type(array_type):
+            l(f'        lua_pushinteger(L, (lua_Integer)self->{field_name}[i]);')
+        else:
+            l(f'        lua_pushnil(L); /* unsupported array type */')
+        l(f'        lua_rawseti(L, -2, i + 1);')
+        l(f'    }}')
+    elif util.is_2d_array_type(field_type):
+        l(f'    /* 2D array not yet supported */')
         l('    lua_pushnil(L);')
     else:
         push_code = get_lua_push_code(field_type, f'self->{field_name}', prefix)
@@ -265,10 +392,33 @@ def gen_struct_field_setter(struct_name, c_struct_name, field, prefix):
     l(f'static int l_{c_struct_name}_set_{field_name}(lua_State *L) {{')
     l(f'    {c_struct_name}* self = ({c_struct_name}*)luaL_checkudata(L, 1, "sokol.{struct_name}");')
 
-    if util.is_array_type(field_type):
-        l(f'    /* TODO: array field {field_name} */')
+    if util.is_1d_array_type(field_type):
+        array_type = util.extract_array_type(field_type)
+        array_sizes = util.extract_array_sizes(field_type)
+        size = array_sizes[0]
+        l(f'    luaL_checktype(L, 2, LUA_TTABLE);')
+        l(f'    for (int i = 0; i < {size}; i++) {{')
+        l(f'        lua_rawgeti(L, 2, i + 1);')
+        l(f'        if (!lua_isnil(L, -1)) {{')
+        if array_type == 'bool':
+            l(f'            self->{field_name}[i] = lua_toboolean(L, -1);')
+        elif is_int_type(array_type):
+            l(f'            self->{field_name}[i] = ({array_type})lua_tointeger(L, -1);')
+        elif is_float_type(array_type):
+            l(f'            self->{field_name}[i] = ({array_type})lua_tonumber(L, -1);')
+        elif is_struct_type(array_type):
+            inner_struct_name = as_struct_metatable_name(array_type)
+            l(f'            {array_type}* val = ({array_type}*)luaL_testudata(L, -1, "sokol.{inner_struct_name}");')
+            l(f'            if (val) self->{field_name}[i] = *val;')
+        elif is_enum_type(array_type):
+            l(f'            self->{field_name}[i] = ({array_type})lua_tointeger(L, -1);')
+        l(f'        }}')
+        l(f'        lua_pop(L, 1);')
+        l(f'    }}')
+    elif util.is_2d_array_type(field_type):
+        l(f'    /* 2D array not yet supported */')
     elif util.is_func_ptr(field_type):
-        l(f'    /* TODO: function pointer field {field_name} */')
+        l(f'    /* Function pointer field not supported */')
     else:
         if field_type == 'bool':
             l(f'    self->{field_name} = lua_toboolean(L, 2);')
@@ -279,7 +429,7 @@ def gen_struct_field_setter(struct_name, c_struct_name, field, prefix):
         elif util.is_string_ptr(field_type):
             l(f'    self->{field_name} = luaL_checkstring(L, 2);')
         elif is_struct_type(field_type):
-            inner_struct_name = as_pascal_case(field_type, prefix)
+            inner_struct_name = as_struct_metatable_name(field_type)
             l(f'    {field_type}* val = ({field_type}*)luaL_checkudata(L, 2, "sokol.{inner_struct_name}");')
             l(f'    self->{field_name} = *val;')
         elif is_enum_type(field_type):
@@ -330,7 +480,7 @@ def gen_struct_bindings(decl, prefix):
     fields = [f for f in decl['fields'] if 'name' in f]
 
     # Generate constructor
-    gen_struct_new(struct_name, c_struct_name, prefix)
+    gen_struct_new(struct_name, c_struct_name, fields, prefix)
 
     # Generate field accessors
     for field in fields:
@@ -342,6 +492,42 @@ def gen_struct_bindings(decl, prefix):
     gen_struct_index(struct_name, c_struct_name, fields, prefix)
     gen_struct_newindex(struct_name, c_struct_name, fields, prefix)
 
+def get_enum_item_short_name(enum_name, item_name, prefix):
+    """Get a short name for an enum item by stripping common prefixes"""
+    item_upper = item_name.upper()
+
+    # Build possible prefixes from enum name
+    # sg_load_action -> SG_LOADACTION_ or SGLOADACTION_
+    enum_upper = enum_name.upper()
+    # Remove trailing _t if present
+    if enum_upper.endswith('_T'):
+        enum_upper = enum_upper[:-2]
+
+    # Try: SG_LOADACTION_ (keeping underscores between module and rest)
+    # enum is sg_load_action, items are SG_LOADACTION_CLEAR
+    # so we want to find the common part: SG_ + LOADACTION_ = SG_LOADACTION_
+    possible_prefixes = []
+
+    # Try exact match with underscores removed after module prefix
+    # sg_load_action -> sg_ + load_action -> SG_ + LOADACTION
+    parts = enum_name.split('_')
+    if len(parts) >= 2:
+        module_part = parts[0].upper() + '_'
+        rest_part = ''.join(parts[1:]).upper() + '_'
+        possible_prefixes.append(module_part + rest_part)
+        possible_prefixes.append('_' + module_part + rest_part)
+
+    # Try just module prefix (SG_, SAPP_, etc.)
+    module_prefix = prefix.upper()
+    possible_prefixes.append(module_prefix)
+    possible_prefixes.append('_' + module_prefix)
+
+    for pfx in possible_prefixes:
+        if item_upper.startswith(pfx):
+            return item_name[len(pfx):]
+
+    return item_name
+
 def gen_enum_constants(decl, prefix):
     """Generate enum constants registration"""
     enum_name = decl['name']
@@ -352,18 +538,13 @@ def gen_enum_constants(decl, prefix):
 
     for item in decl['items']:
         item_name = item['name']
-        lua_item_name = as_snake_case(item_name, prefix)
-        # Remove enum prefix from item name
-        parts = lua_item_name.split('_')
-        if len(parts) > 1:
-            short_name = '_'.join(parts[1:]) if parts[0] == as_snake_case(enum_name, prefix).split('_')[0] else lua_item_name
-        else:
-            short_name = lua_item_name
+        short_name = get_enum_item_short_name(enum_name, item_name, prefix)
+
         if 'value' in item:
             l(f'    lua_pushinteger(L, {item["value"]});')
         else:
             l(f'    lua_pushinteger(L, {item_name});')
-        l(f'    lua_setfield(L, -2, "{short_name.upper()}");')
+        l(f'    lua_setfield(L, -2, "{short_name}");')
 
     l(f'    lua_setfield(L, -2, "{lua_enum_name}");')
     l('}')

@@ -177,6 +177,7 @@ if(SOKOL_LUA_BUILD_EXAMPLE)
     add_executable(sokol-lua-example WIN32 examples/main.c)
     target_include_directories(sokol-lua-example PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/c
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders
         ${LUA_INCLUDE}
     )
     target_link_libraries(sokol-lua-example sokol-lua)

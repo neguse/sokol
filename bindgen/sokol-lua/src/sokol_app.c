@@ -22,6 +22,35 @@ static int l_sapp_touchpoint_new(lua_State *L) {
     sapp_touchpoint* ud = (sapp_touchpoint*)lua_newuserdatauv(L, sizeof(sapp_touchpoint), 0);
     memset(ud, 0, sizeof(sapp_touchpoint));
     luaL_setmetatable(L, "sokol.Touchpoint");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "identifier");
+        if (!lua_isnil(L, -1)) {
+            ud->identifier = (uintptr_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "pos_x");
+        if (!lua_isnil(L, -1)) {
+            ud->pos_x = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "pos_y");
+        if (!lua_isnil(L, -1)) {
+            ud->pos_y = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "android_tooltype");
+        if (!lua_isnil(L, -1)) {
+            ud->android_tooltype = (sapp_android_tooltype)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "changed");
+        if (!lua_isnil(L, -1)) {
+            ud->changed = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -109,6 +138,122 @@ static int l_sapp_event_new(lua_State *L) {
     sapp_event* ud = (sapp_event*)lua_newuserdatauv(L, sizeof(sapp_event), 0);
     memset(ud, 0, sizeof(sapp_event));
     luaL_setmetatable(L, "sokol.Event");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "frame_count");
+        if (!lua_isnil(L, -1)) {
+            ud->frame_count = (uint64_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "type");
+        if (!lua_isnil(L, -1)) {
+            ud->type = (sapp_event_type)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "key_code");
+        if (!lua_isnil(L, -1)) {
+            ud->key_code = (sapp_keycode)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "char_code");
+        if (!lua_isnil(L, -1)) {
+            ud->char_code = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "key_repeat");
+        if (!lua_isnil(L, -1)) {
+            ud->key_repeat = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "modifiers");
+        if (!lua_isnil(L, -1)) {
+            ud->modifiers = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "mouse_button");
+        if (!lua_isnil(L, -1)) {
+            ud->mouse_button = (sapp_mousebutton)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "mouse_x");
+        if (!lua_isnil(L, -1)) {
+            ud->mouse_x = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "mouse_y");
+        if (!lua_isnil(L, -1)) {
+            ud->mouse_y = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "mouse_dx");
+        if (!lua_isnil(L, -1)) {
+            ud->mouse_dx = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "mouse_dy");
+        if (!lua_isnil(L, -1)) {
+            ud->mouse_dy = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "scroll_x");
+        if (!lua_isnil(L, -1)) {
+            ud->scroll_x = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "scroll_y");
+        if (!lua_isnil(L, -1)) {
+            ud->scroll_y = (float)lua_tonumber(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "num_touches");
+        if (!lua_isnil(L, -1)) {
+            ud->num_touches = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "touches");
+        if (lua_istable(L, -1)) {
+            for (int i = 0; i < 8; i++) {
+                lua_rawgeti(L, -1, i + 1);
+                if (!lua_isnil(L, -1)) {
+                    if (lua_istable(L, -1)) {
+                        /* Initialize from inline table */
+                        lua_pushcfunction(L, l_sapp_touchpoint_new);
+                        lua_pushvalue(L, -2);
+                        lua_call(L, 1, 1);
+                        sapp_touchpoint* val = (sapp_touchpoint*)luaL_testudata(L, -1, "sokol.Touchpoint");
+                        if (val) ud->touches[i] = *val;
+                        lua_pop(L, 1);
+                    } else {
+                        sapp_touchpoint* val = (sapp_touchpoint*)luaL_testudata(L, -1, "sokol.Touchpoint");
+                        if (val) ud->touches[i] = *val;
+                    }
+                }
+                lua_pop(L, 1);
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "window_width");
+        if (!lua_isnil(L, -1)) {
+            ud->window_width = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "window_height");
+        if (!lua_isnil(L, -1)) {
+            ud->window_height = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "framebuffer_width");
+        if (!lua_isnil(L, -1)) {
+            ud->framebuffer_width = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "framebuffer_height");
+        if (!lua_isnil(L, -1)) {
+            ud->framebuffer_height = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -282,14 +427,27 @@ static int l_sapp_event_set_num_touches(lua_State *L) {
 
 static int l_sapp_event_get_touches(lua_State *L) {
     sapp_event* self = (sapp_event*)luaL_checkudata(L, 1, "sokol.Event");
-    /* TODO: array field touches */
-    lua_pushnil(L);
+    lua_newtable(L);
+    for (int i = 0; i < 8; i++) {
+        sapp_touchpoint* ud = (sapp_touchpoint*)lua_newuserdatauv(L, sizeof(sapp_touchpoint), 0);
+        *ud = self->touches[i];
+        luaL_setmetatable(L, "sokol.Touchpoint");
+        lua_rawseti(L, -2, i + 1);
+    }
     return 1;
 }
 
 static int l_sapp_event_set_touches(lua_State *L) {
     sapp_event* self = (sapp_event*)luaL_checkudata(L, 1, "sokol.Event");
-    /* TODO: array field touches */
+    luaL_checktype(L, 2, LUA_TTABLE);
+    for (int i = 0; i < 8; i++) {
+        lua_rawgeti(L, 2, i + 1);
+        if (!lua_isnil(L, -1)) {
+            sapp_touchpoint* val = (sapp_touchpoint*)luaL_testudata(L, -1, "sokol.Touchpoint");
+            if (val) self->touches[i] = *val;
+        }
+        lua_pop(L, 1);
+    }
     return 0;
 }
 
@@ -393,6 +551,20 @@ static int l_sapp_range_new(lua_State *L) {
     sapp_range* ud = (sapp_range*)lua_newuserdatauv(L, sizeof(sapp_range), 0);
     memset(ud, 0, sizeof(sapp_range));
     luaL_setmetatable(L, "sokol.Range");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "ptr");
+        if (!lua_isnil(L, -1)) {
+            ud->ptr = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "size");
+        if (!lua_isnil(L, -1)) {
+            ud->size = (size_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -438,6 +610,46 @@ static int l_sapp_image_desc_new(lua_State *L) {
     sapp_image_desc* ud = (sapp_image_desc*)lua_newuserdatauv(L, sizeof(sapp_image_desc), 0);
     memset(ud, 0, sizeof(sapp_image_desc));
     luaL_setmetatable(L, "sokol.ImageDesc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "width");
+        if (!lua_isnil(L, -1)) {
+            ud->width = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "height");
+        if (!lua_isnil(L, -1)) {
+            ud->height = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "cursor_hotspot_x");
+        if (!lua_isnil(L, -1)) {
+            ud->cursor_hotspot_x = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "cursor_hotspot_y");
+        if (!lua_isnil(L, -1)) {
+            ud->cursor_hotspot_y = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "pixels");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_range_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_range* val = (sapp_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->pixels = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_range* val = (sapp_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->pixels = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -528,6 +740,37 @@ static int l_sapp_icon_desc_new(lua_State *L) {
     sapp_icon_desc* ud = (sapp_icon_desc*)lua_newuserdatauv(L, sizeof(sapp_icon_desc), 0);
     memset(ud, 0, sizeof(sapp_icon_desc));
     luaL_setmetatable(L, "sokol.IconDesc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "sokol_default");
+        if (!lua_isnil(L, -1)) {
+            ud->sokol_default = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "images");
+        if (lua_istable(L, -1)) {
+            for (int i = 0; i < 8; i++) {
+                lua_rawgeti(L, -1, i + 1);
+                if (!lua_isnil(L, -1)) {
+                    if (lua_istable(L, -1)) {
+                        /* Initialize from inline table */
+                        lua_pushcfunction(L, l_sapp_image_desc_new);
+                        lua_pushvalue(L, -2);
+                        lua_call(L, 1, 1);
+                        sapp_image_desc* val = (sapp_image_desc*)luaL_testudata(L, -1, "sokol.ImageDesc");
+                        if (val) ud->images[i] = *val;
+                        lua_pop(L, 1);
+                    } else {
+                        sapp_image_desc* val = (sapp_image_desc*)luaL_testudata(L, -1, "sokol.ImageDesc");
+                        if (val) ud->images[i] = *val;
+                    }
+                }
+                lua_pop(L, 1);
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -545,14 +788,27 @@ static int l_sapp_icon_desc_set_sokol_default(lua_State *L) {
 
 static int l_sapp_icon_desc_get_images(lua_State *L) {
     sapp_icon_desc* self = (sapp_icon_desc*)luaL_checkudata(L, 1, "sokol.IconDesc");
-    /* TODO: array field images */
-    lua_pushnil(L);
+    lua_newtable(L);
+    for (int i = 0; i < 8; i++) {
+        sapp_image_desc* ud = (sapp_image_desc*)lua_newuserdatauv(L, sizeof(sapp_image_desc), 0);
+        *ud = self->images[i];
+        luaL_setmetatable(L, "sokol.ImageDesc");
+        lua_rawseti(L, -2, i + 1);
+    }
     return 1;
 }
 
 static int l_sapp_icon_desc_set_images(lua_State *L) {
     sapp_icon_desc* self = (sapp_icon_desc*)luaL_checkudata(L, 1, "sokol.IconDesc");
-    /* TODO: array field images */
+    luaL_checktype(L, 2, LUA_TTABLE);
+    for (int i = 0; i < 8; i++) {
+        lua_rawgeti(L, 2, i + 1);
+        if (!lua_isnil(L, -1)) {
+            sapp_image_desc* val = (sapp_image_desc*)luaL_testudata(L, -1, "sokol.ImageDesc");
+            if (val) self->images[i] = *val;
+        }
+        lua_pop(L, 1);
+    }
     return 0;
 }
 
@@ -574,6 +830,15 @@ static int l_sapp_allocator_new(lua_State *L) {
     sapp_allocator* ud = (sapp_allocator*)lua_newuserdatauv(L, sizeof(sapp_allocator), 0);
     memset(ud, 0, sizeof(sapp_allocator));
     luaL_setmetatable(L, "sokol.Allocator");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -605,6 +870,25 @@ static int l_sapp_environment_defaults_new(lua_State *L) {
     sapp_environment_defaults* ud = (sapp_environment_defaults*)lua_newuserdatauv(L, sizeof(sapp_environment_defaults), 0);
     memset(ud, 0, sizeof(sapp_environment_defaults));
     luaL_setmetatable(L, "sokol.EnvironmentDefaults");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "color_format");
+        if (!lua_isnil(L, -1)) {
+            ud->color_format = (sapp_pixel_format)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth_format");
+        if (!lua_isnil(L, -1)) {
+            ud->depth_format = (sapp_pixel_format)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "sample_count");
+        if (!lua_isnil(L, -1)) {
+            ud->sample_count = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -664,6 +948,15 @@ static int l_sapp_metal_environment_new(lua_State *L) {
     sapp_metal_environment* ud = (sapp_metal_environment*)lua_newuserdatauv(L, sizeof(sapp_metal_environment), 0);
     memset(ud, 0, sizeof(sapp_metal_environment));
     luaL_setmetatable(L, "sokol.MetalEnvironment");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "device");
+        if (!lua_isnil(L, -1)) {
+            ud->device = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -695,6 +988,20 @@ static int l_sapp_d3d11_environment_new(lua_State *L) {
     sapp_d3d11_environment* ud = (sapp_d3d11_environment*)lua_newuserdatauv(L, sizeof(sapp_d3d11_environment), 0);
     memset(ud, 0, sizeof(sapp_d3d11_environment));
     luaL_setmetatable(L, "sokol.D3d11Environment");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "device");
+        if (!lua_isnil(L, -1)) {
+            ud->device = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "device_context");
+        if (!lua_isnil(L, -1)) {
+            ud->device_context = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -740,6 +1047,15 @@ static int l_sapp_wgpu_environment_new(lua_State *L) {
     sapp_wgpu_environment* ud = (sapp_wgpu_environment*)lua_newuserdatauv(L, sizeof(sapp_wgpu_environment), 0);
     memset(ud, 0, sizeof(sapp_wgpu_environment));
     luaL_setmetatable(L, "sokol.WgpuEnvironment");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "device");
+        if (!lua_isnil(L, -1)) {
+            ud->device = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -771,6 +1087,30 @@ static int l_sapp_vulkan_environment_new(lua_State *L) {
     sapp_vulkan_environment* ud = (sapp_vulkan_environment*)lua_newuserdatauv(L, sizeof(sapp_vulkan_environment), 0);
     memset(ud, 0, sizeof(sapp_vulkan_environment));
     luaL_setmetatable(L, "sokol.VulkanEnvironment");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "physical_device");
+        if (!lua_isnil(L, -1)) {
+            ud->physical_device = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "device");
+        if (!lua_isnil(L, -1)) {
+            ud->device = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "queue");
+        if (!lua_isnil(L, -1)) {
+            ud->queue = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "queue_family_index");
+        if (!lua_isnil(L, -1)) {
+            ud->queue_family_index = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -844,6 +1184,90 @@ static int l_sapp_environment_new(lua_State *L) {
     sapp_environment* ud = (sapp_environment*)lua_newuserdatauv(L, sizeof(sapp_environment), 0);
     memset(ud, 0, sizeof(sapp_environment));
     luaL_setmetatable(L, "sokol.Environment");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "defaults");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_environment_defaults_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_environment_defaults* val = (sapp_environment_defaults*)luaL_testudata(L, -1, "sokol.EnvironmentDefaults");
+                if (val) ud->defaults = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_environment_defaults* val = (sapp_environment_defaults*)luaL_testudata(L, -1, "sokol.EnvironmentDefaults");
+                if (val) ud->defaults = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "metal");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_metal_environment_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_metal_environment* val = (sapp_metal_environment*)luaL_testudata(L, -1, "sokol.MetalEnvironment");
+                if (val) ud->metal = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_metal_environment* val = (sapp_metal_environment*)luaL_testudata(L, -1, "sokol.MetalEnvironment");
+                if (val) ud->metal = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "d3d11");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_d3d11_environment_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_d3d11_environment* val = (sapp_d3d11_environment*)luaL_testudata(L, -1, "sokol.D3d11Environment");
+                if (val) ud->d3d11 = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_d3d11_environment* val = (sapp_d3d11_environment*)luaL_testudata(L, -1, "sokol.D3d11Environment");
+                if (val) ud->d3d11 = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "wgpu");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_wgpu_environment_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_wgpu_environment* val = (sapp_wgpu_environment*)luaL_testudata(L, -1, "sokol.WgpuEnvironment");
+                if (val) ud->wgpu = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_wgpu_environment* val = (sapp_wgpu_environment*)luaL_testudata(L, -1, "sokol.WgpuEnvironment");
+                if (val) ud->wgpu = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "vulkan");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_vulkan_environment_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_vulkan_environment* val = (sapp_vulkan_environment*)luaL_testudata(L, -1, "sokol.VulkanEnvironment");
+                if (val) ud->vulkan = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_vulkan_environment* val = (sapp_vulkan_environment*)luaL_testudata(L, -1, "sokol.VulkanEnvironment");
+                if (val) ud->vulkan = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -946,6 +1370,25 @@ static int l_sapp_metal_swapchain_new(lua_State *L) {
     sapp_metal_swapchain* ud = (sapp_metal_swapchain*)lua_newuserdatauv(L, sizeof(sapp_metal_swapchain), 0);
     memset(ud, 0, sizeof(sapp_metal_swapchain));
     luaL_setmetatable(L, "sokol.MetalSwapchain");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "current_drawable");
+        if (!lua_isnil(L, -1)) {
+            ud->current_drawable = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth_stencil_texture");
+        if (!lua_isnil(L, -1)) {
+            ud->depth_stencil_texture = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "msaa_color_texture");
+        if (!lua_isnil(L, -1)) {
+            ud->msaa_color_texture = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1005,6 +1448,25 @@ static int l_sapp_d3d11_swapchain_new(lua_State *L) {
     sapp_d3d11_swapchain* ud = (sapp_d3d11_swapchain*)lua_newuserdatauv(L, sizeof(sapp_d3d11_swapchain), 0);
     memset(ud, 0, sizeof(sapp_d3d11_swapchain));
     luaL_setmetatable(L, "sokol.D3d11Swapchain");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "render_view");
+        if (!lua_isnil(L, -1)) {
+            ud->render_view = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "resolve_view");
+        if (!lua_isnil(L, -1)) {
+            ud->resolve_view = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth_stencil_view");
+        if (!lua_isnil(L, -1)) {
+            ud->depth_stencil_view = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1064,6 +1526,25 @@ static int l_sapp_wgpu_swapchain_new(lua_State *L) {
     sapp_wgpu_swapchain* ud = (sapp_wgpu_swapchain*)lua_newuserdatauv(L, sizeof(sapp_wgpu_swapchain), 0);
     memset(ud, 0, sizeof(sapp_wgpu_swapchain));
     luaL_setmetatable(L, "sokol.WgpuSwapchain");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "render_view");
+        if (!lua_isnil(L, -1)) {
+            ud->render_view = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "resolve_view");
+        if (!lua_isnil(L, -1)) {
+            ud->resolve_view = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth_stencil_view");
+        if (!lua_isnil(L, -1)) {
+            ud->depth_stencil_view = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1123,6 +1604,50 @@ static int l_sapp_vulkan_swapchain_new(lua_State *L) {
     sapp_vulkan_swapchain* ud = (sapp_vulkan_swapchain*)lua_newuserdatauv(L, sizeof(sapp_vulkan_swapchain), 0);
     memset(ud, 0, sizeof(sapp_vulkan_swapchain));
     luaL_setmetatable(L, "sokol.VulkanSwapchain");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "render_image");
+        if (!lua_isnil(L, -1)) {
+            ud->render_image = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "render_view");
+        if (!lua_isnil(L, -1)) {
+            ud->render_view = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "resolve_image");
+        if (!lua_isnil(L, -1)) {
+            ud->resolve_image = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "resolve_view");
+        if (!lua_isnil(L, -1)) {
+            ud->resolve_view = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth_stencil_image");
+        if (!lua_isnil(L, -1)) {
+            ud->depth_stencil_image = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth_stencil_view");
+        if (!lua_isnil(L, -1)) {
+            ud->depth_stencil_view = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "render_finished_semaphore");
+        if (!lua_isnil(L, -1)) {
+            ud->render_finished_semaphore = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "present_complete_semaphore");
+        if (!lua_isnil(L, -1)) {
+            ud->present_complete_semaphore = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1252,6 +1777,15 @@ static int l_sapp_gl_swapchain_new(lua_State *L) {
     sapp_gl_swapchain* ud = (sapp_gl_swapchain*)lua_newuserdatauv(L, sizeof(sapp_gl_swapchain), 0);
     memset(ud, 0, sizeof(sapp_gl_swapchain));
     luaL_setmetatable(L, "sokol.GlSwapchain");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "framebuffer");
+        if (!lua_isnil(L, -1)) {
+            ud->framebuffer = (uint32_t)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1283,6 +1817,115 @@ static int l_sapp_swapchain_new(lua_State *L) {
     sapp_swapchain* ud = (sapp_swapchain*)lua_newuserdatauv(L, sizeof(sapp_swapchain), 0);
     memset(ud, 0, sizeof(sapp_swapchain));
     luaL_setmetatable(L, "sokol.Swapchain");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "width");
+        if (!lua_isnil(L, -1)) {
+            ud->width = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "height");
+        if (!lua_isnil(L, -1)) {
+            ud->height = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "sample_count");
+        if (!lua_isnil(L, -1)) {
+            ud->sample_count = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "color_format");
+        if (!lua_isnil(L, -1)) {
+            ud->color_format = (sapp_pixel_format)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "depth_format");
+        if (!lua_isnil(L, -1)) {
+            ud->depth_format = (sapp_pixel_format)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "metal");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_metal_swapchain_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_metal_swapchain* val = (sapp_metal_swapchain*)luaL_testudata(L, -1, "sokol.MetalSwapchain");
+                if (val) ud->metal = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_metal_swapchain* val = (sapp_metal_swapchain*)luaL_testudata(L, -1, "sokol.MetalSwapchain");
+                if (val) ud->metal = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "d3d11");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_d3d11_swapchain_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_d3d11_swapchain* val = (sapp_d3d11_swapchain*)luaL_testudata(L, -1, "sokol.D3d11Swapchain");
+                if (val) ud->d3d11 = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_d3d11_swapchain* val = (sapp_d3d11_swapchain*)luaL_testudata(L, -1, "sokol.D3d11Swapchain");
+                if (val) ud->d3d11 = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "wgpu");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_wgpu_swapchain_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_wgpu_swapchain* val = (sapp_wgpu_swapchain*)luaL_testudata(L, -1, "sokol.WgpuSwapchain");
+                if (val) ud->wgpu = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_wgpu_swapchain* val = (sapp_wgpu_swapchain*)luaL_testudata(L, -1, "sokol.WgpuSwapchain");
+                if (val) ud->wgpu = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "vulkan");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_vulkan_swapchain_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_vulkan_swapchain* val = (sapp_vulkan_swapchain*)luaL_testudata(L, -1, "sokol.VulkanSwapchain");
+                if (val) ud->vulkan = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_vulkan_swapchain* val = (sapp_vulkan_swapchain*)luaL_testudata(L, -1, "sokol.VulkanSwapchain");
+                if (val) ud->vulkan = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "gl");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_gl_swapchain_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_gl_swapchain* val = (sapp_gl_swapchain*)luaL_testudata(L, -1, "sokol.GlSwapchain");
+                if (val) ud->gl = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_gl_swapchain* val = (sapp_gl_swapchain*)luaL_testudata(L, -1, "sokol.GlSwapchain");
+                if (val) ud->gl = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1455,6 +2098,15 @@ static int l_sapp_logger_new(lua_State *L) {
     sapp_logger* ud = (sapp_logger*)lua_newuserdatauv(L, sizeof(sapp_logger), 0);
     memset(ud, 0, sizeof(sapp_logger));
     luaL_setmetatable(L, "sokol.Logger");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1486,6 +2138,20 @@ static int l_sapp_gl_desc_new(lua_State *L) {
     sapp_gl_desc* ud = (sapp_gl_desc*)lua_newuserdatauv(L, sizeof(sapp_gl_desc), 0);
     memset(ud, 0, sizeof(sapp_gl_desc));
     luaL_setmetatable(L, "sokol.GlDesc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "major_version");
+        if (!lua_isnil(L, -1)) {
+            ud->major_version = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "minor_version");
+        if (!lua_isnil(L, -1)) {
+            ud->minor_version = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1531,6 +2197,25 @@ static int l_sapp_win32_desc_new(lua_State *L) {
     sapp_win32_desc* ud = (sapp_win32_desc*)lua_newuserdatauv(L, sizeof(sapp_win32_desc), 0);
     memset(ud, 0, sizeof(sapp_win32_desc));
     luaL_setmetatable(L, "sokol.Win32Desc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "console_utf8");
+        if (!lua_isnil(L, -1)) {
+            ud->console_utf8 = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "console_create");
+        if (!lua_isnil(L, -1)) {
+            ud->console_create = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "console_attach");
+        if (!lua_isnil(L, -1)) {
+            ud->console_attach = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1590,6 +2275,75 @@ static int l_sapp_html5_desc_new(lua_State *L) {
     sapp_html5_desc* ud = (sapp_html5_desc*)lua_newuserdatauv(L, sizeof(sapp_html5_desc), 0);
     memset(ud, 0, sizeof(sapp_html5_desc));
     luaL_setmetatable(L, "sokol.Html5Desc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "canvas_selector");
+        if (!lua_isnil(L, -1)) {
+            ud->canvas_selector = lua_tostring(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "canvas_resize");
+        if (!lua_isnil(L, -1)) {
+            ud->canvas_resize = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "preserve_drawing_buffer");
+        if (!lua_isnil(L, -1)) {
+            ud->preserve_drawing_buffer = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "premultiplied_alpha");
+        if (!lua_isnil(L, -1)) {
+            ud->premultiplied_alpha = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "ask_leave_site");
+        if (!lua_isnil(L, -1)) {
+            ud->ask_leave_site = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "update_document_title");
+        if (!lua_isnil(L, -1)) {
+            ud->update_document_title = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "bubble_mouse_events");
+        if (!lua_isnil(L, -1)) {
+            ud->bubble_mouse_events = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "bubble_touch_events");
+        if (!lua_isnil(L, -1)) {
+            ud->bubble_touch_events = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "bubble_wheel_events");
+        if (!lua_isnil(L, -1)) {
+            ud->bubble_wheel_events = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "bubble_key_events");
+        if (!lua_isnil(L, -1)) {
+            ud->bubble_key_events = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "bubble_char_events");
+        if (!lua_isnil(L, -1)) {
+            ud->bubble_char_events = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "use_emsc_set_main_loop");
+        if (!lua_isnil(L, -1)) {
+            ud->use_emsc_set_main_loop = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "emsc_set_main_loop_simulate_infinite_loop");
+        if (!lua_isnil(L, -1)) {
+            ud->emsc_set_main_loop_simulate_infinite_loop = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1789,6 +2543,15 @@ static int l_sapp_ios_desc_new(lua_State *L) {
     sapp_ios_desc* ud = (sapp_ios_desc*)lua_newuserdatauv(L, sizeof(sapp_ios_desc), 0);
     memset(ud, 0, sizeof(sapp_ios_desc));
     luaL_setmetatable(L, "sokol.IosDesc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "keyboard_resizes_canvas");
+        if (!lua_isnil(L, -1)) {
+            ud->keyboard_resizes_canvas = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -1820,6 +2583,192 @@ static int l_sapp_desc_new(lua_State *L) {
     sapp_desc* ud = (sapp_desc*)lua_newuserdatauv(L, sizeof(sapp_desc), 0);
     memset(ud, 0, sizeof(sapp_desc));
     luaL_setmetatable(L, "sokol.Desc");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "width");
+        if (!lua_isnil(L, -1)) {
+            ud->width = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "height");
+        if (!lua_isnil(L, -1)) {
+            ud->height = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "sample_count");
+        if (!lua_isnil(L, -1)) {
+            ud->sample_count = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "swap_interval");
+        if (!lua_isnil(L, -1)) {
+            ud->swap_interval = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "high_dpi");
+        if (!lua_isnil(L, -1)) {
+            ud->high_dpi = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "fullscreen");
+        if (!lua_isnil(L, -1)) {
+            ud->fullscreen = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "alpha");
+        if (!lua_isnil(L, -1)) {
+            ud->alpha = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "window_title");
+        if (!lua_isnil(L, -1)) {
+            ud->window_title = lua_tostring(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "enable_clipboard");
+        if (!lua_isnil(L, -1)) {
+            ud->enable_clipboard = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "clipboard_size");
+        if (!lua_isnil(L, -1)) {
+            ud->clipboard_size = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "enable_dragndrop");
+        if (!lua_isnil(L, -1)) {
+            ud->enable_dragndrop = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "max_dropped_files");
+        if (!lua_isnil(L, -1)) {
+            ud->max_dropped_files = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "max_dropped_file_path_length");
+        if (!lua_isnil(L, -1)) {
+            ud->max_dropped_file_path_length = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "icon");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_icon_desc_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_icon_desc* val = (sapp_icon_desc*)luaL_testudata(L, -1, "sokol.IconDesc");
+                if (val) ud->icon = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_icon_desc* val = (sapp_icon_desc*)luaL_testudata(L, -1, "sokol.IconDesc");
+                if (val) ud->icon = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "allocator");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_allocator_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_allocator* val = (sapp_allocator*)luaL_testudata(L, -1, "sokol.Allocator");
+                if (val) ud->allocator = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_allocator* val = (sapp_allocator*)luaL_testudata(L, -1, "sokol.Allocator");
+                if (val) ud->allocator = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "logger");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_logger_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_logger* val = (sapp_logger*)luaL_testudata(L, -1, "sokol.Logger");
+                if (val) ud->logger = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_logger* val = (sapp_logger*)luaL_testudata(L, -1, "sokol.Logger");
+                if (val) ud->logger = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "gl");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_gl_desc_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_gl_desc* val = (sapp_gl_desc*)luaL_testudata(L, -1, "sokol.GlDesc");
+                if (val) ud->gl = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_gl_desc* val = (sapp_gl_desc*)luaL_testudata(L, -1, "sokol.GlDesc");
+                if (val) ud->gl = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "win32");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_win32_desc_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_win32_desc* val = (sapp_win32_desc*)luaL_testudata(L, -1, "sokol.Win32Desc");
+                if (val) ud->win32 = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_win32_desc* val = (sapp_win32_desc*)luaL_testudata(L, -1, "sokol.Win32Desc");
+                if (val) ud->win32 = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "html5");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_html5_desc_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_html5_desc* val = (sapp_html5_desc*)luaL_testudata(L, -1, "sokol.Html5Desc");
+                if (val) ud->html5 = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_html5_desc* val = (sapp_html5_desc*)luaL_testudata(L, -1, "sokol.Html5Desc");
+                if (val) ud->html5 = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "ios");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_ios_desc_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_ios_desc* val = (sapp_ios_desc*)luaL_testudata(L, -1, "sokol.IosDesc");
+                if (val) ud->ios = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_ios_desc* val = (sapp_ios_desc*)luaL_testudata(L, -1, "sokol.IosDesc");
+                if (val) ud->ios = *val;
+            }
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -2152,6 +3101,62 @@ static int l_sapp_html5_fetch_response_new(lua_State *L) {
     sapp_html5_fetch_response* ud = (sapp_html5_fetch_response*)lua_newuserdatauv(L, sizeof(sapp_html5_fetch_response), 0);
     memset(ud, 0, sizeof(sapp_html5_fetch_response));
     luaL_setmetatable(L, "sokol.Html5FetchResponse");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "succeeded");
+        if (!lua_isnil(L, -1)) {
+            ud->succeeded = lua_toboolean(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "error_code");
+        if (!lua_isnil(L, -1)) {
+            ud->error_code = (sapp_html5_fetch_error)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "file_index");
+        if (!lua_isnil(L, -1)) {
+            ud->file_index = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "data");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_range_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_range* val = (sapp_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->data = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_range* val = (sapp_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->data = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "buffer");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_range_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_range* val = (sapp_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->buffer = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_range* val = (sapp_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->buffer = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -2259,6 +3264,36 @@ static int l_sapp_html5_fetch_request_new(lua_State *L) {
     sapp_html5_fetch_request* ud = (sapp_html5_fetch_request*)lua_newuserdatauv(L, sizeof(sapp_html5_fetch_request), 0);
     memset(ud, 0, sizeof(sapp_html5_fetch_request));
     luaL_setmetatable(L, "sokol.Html5FetchRequest");
+
+    /* If first arg is a table, use it to initialize fields */
+    if (lua_istable(L, 1)) {
+        lua_getfield(L, 1, "dropped_file_index");
+        if (!lua_isnil(L, -1)) {
+            ud->dropped_file_index = (int)lua_tointeger(L, -1);
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "buffer");
+        if (!lua_isnil(L, -1)) {
+            if (lua_istable(L, -1)) {
+                /* Initialize from inline table */
+                lua_pushcfunction(L, l_sapp_range_new);
+                lua_pushvalue(L, -2);
+                lua_call(L, 1, 1);
+                sapp_range* val = (sapp_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->buffer = *val;
+                lua_pop(L, 1);
+            } else {
+                sapp_range* val = (sapp_range*)luaL_testudata(L, -1, "sokol.Range");
+                if (val) ud->buffer = *val;
+            }
+        }
+        lua_pop(L, 1);
+        lua_getfield(L, 1, "user_data");
+        if (!lua_isnil(L, -1)) {
+            ud->user_data = lua_touserdata(L, -1);
+        }
+        lua_pop(L, 1);
+    }
     return 1;
 }
 
@@ -2643,57 +3678,57 @@ static int l_sapp_android_get_native_activity(lua_State *L) {
 static void register_sapp_event_type(lua_State *L) {
     lua_newtable(L);
     lua_pushinteger(L, SAPP_EVENTTYPE_INVALID);
-    lua_setfield(L, -2, "EVENTTYPE_INVALID");
+    lua_setfield(L, -2, "INVALID");
     lua_pushinteger(L, SAPP_EVENTTYPE_KEY_DOWN);
-    lua_setfield(L, -2, "EVENTTYPE_KEY_DOWN");
+    lua_setfield(L, -2, "KEY_DOWN");
     lua_pushinteger(L, SAPP_EVENTTYPE_KEY_UP);
-    lua_setfield(L, -2, "EVENTTYPE_KEY_UP");
+    lua_setfield(L, -2, "KEY_UP");
     lua_pushinteger(L, SAPP_EVENTTYPE_CHAR);
-    lua_setfield(L, -2, "EVENTTYPE_CHAR");
+    lua_setfield(L, -2, "CHAR");
     lua_pushinteger(L, SAPP_EVENTTYPE_MOUSE_DOWN);
-    lua_setfield(L, -2, "EVENTTYPE_MOUSE_DOWN");
+    lua_setfield(L, -2, "MOUSE_DOWN");
     lua_pushinteger(L, SAPP_EVENTTYPE_MOUSE_UP);
-    lua_setfield(L, -2, "EVENTTYPE_MOUSE_UP");
+    lua_setfield(L, -2, "MOUSE_UP");
     lua_pushinteger(L, SAPP_EVENTTYPE_MOUSE_SCROLL);
-    lua_setfield(L, -2, "EVENTTYPE_MOUSE_SCROLL");
+    lua_setfield(L, -2, "MOUSE_SCROLL");
     lua_pushinteger(L, SAPP_EVENTTYPE_MOUSE_MOVE);
-    lua_setfield(L, -2, "EVENTTYPE_MOUSE_MOVE");
+    lua_setfield(L, -2, "MOUSE_MOVE");
     lua_pushinteger(L, SAPP_EVENTTYPE_MOUSE_ENTER);
-    lua_setfield(L, -2, "EVENTTYPE_MOUSE_ENTER");
+    lua_setfield(L, -2, "MOUSE_ENTER");
     lua_pushinteger(L, SAPP_EVENTTYPE_MOUSE_LEAVE);
-    lua_setfield(L, -2, "EVENTTYPE_MOUSE_LEAVE");
+    lua_setfield(L, -2, "MOUSE_LEAVE");
     lua_pushinteger(L, SAPP_EVENTTYPE_TOUCHES_BEGAN);
-    lua_setfield(L, -2, "EVENTTYPE_TOUCHES_BEGAN");
+    lua_setfield(L, -2, "TOUCHES_BEGAN");
     lua_pushinteger(L, SAPP_EVENTTYPE_TOUCHES_MOVED);
-    lua_setfield(L, -2, "EVENTTYPE_TOUCHES_MOVED");
+    lua_setfield(L, -2, "TOUCHES_MOVED");
     lua_pushinteger(L, SAPP_EVENTTYPE_TOUCHES_ENDED);
-    lua_setfield(L, -2, "EVENTTYPE_TOUCHES_ENDED");
+    lua_setfield(L, -2, "TOUCHES_ENDED");
     lua_pushinteger(L, SAPP_EVENTTYPE_TOUCHES_CANCELLED);
-    lua_setfield(L, -2, "EVENTTYPE_TOUCHES_CANCELLED");
+    lua_setfield(L, -2, "TOUCHES_CANCELLED");
     lua_pushinteger(L, SAPP_EVENTTYPE_RESIZED);
-    lua_setfield(L, -2, "EVENTTYPE_RESIZED");
+    lua_setfield(L, -2, "RESIZED");
     lua_pushinteger(L, SAPP_EVENTTYPE_ICONIFIED);
-    lua_setfield(L, -2, "EVENTTYPE_ICONIFIED");
+    lua_setfield(L, -2, "ICONIFIED");
     lua_pushinteger(L, SAPP_EVENTTYPE_RESTORED);
-    lua_setfield(L, -2, "EVENTTYPE_RESTORED");
+    lua_setfield(L, -2, "RESTORED");
     lua_pushinteger(L, SAPP_EVENTTYPE_FOCUSED);
-    lua_setfield(L, -2, "EVENTTYPE_FOCUSED");
+    lua_setfield(L, -2, "FOCUSED");
     lua_pushinteger(L, SAPP_EVENTTYPE_UNFOCUSED);
-    lua_setfield(L, -2, "EVENTTYPE_UNFOCUSED");
+    lua_setfield(L, -2, "UNFOCUSED");
     lua_pushinteger(L, SAPP_EVENTTYPE_SUSPENDED);
-    lua_setfield(L, -2, "EVENTTYPE_SUSPENDED");
+    lua_setfield(L, -2, "SUSPENDED");
     lua_pushinteger(L, SAPP_EVENTTYPE_RESUMED);
-    lua_setfield(L, -2, "EVENTTYPE_RESUMED");
+    lua_setfield(L, -2, "RESUMED");
     lua_pushinteger(L, SAPP_EVENTTYPE_QUIT_REQUESTED);
-    lua_setfield(L, -2, "EVENTTYPE_QUIT_REQUESTED");
+    lua_setfield(L, -2, "QUIT_REQUESTED");
     lua_pushinteger(L, SAPP_EVENTTYPE_CLIPBOARD_PASTED);
-    lua_setfield(L, -2, "EVENTTYPE_CLIPBOARD_PASTED");
+    lua_setfield(L, -2, "CLIPBOARD_PASTED");
     lua_pushinteger(L, SAPP_EVENTTYPE_FILES_DROPPED);
-    lua_setfield(L, -2, "EVENTTYPE_FILES_DROPPED");
+    lua_setfield(L, -2, "FILES_DROPPED");
     lua_pushinteger(L, _SAPP_EVENTTYPE_NUM);
-    lua_setfield(L, -2, "_SAPP_EVENTTYPE_NUM");
+    lua_setfield(L, -2, "NUM");
     lua_pushinteger(L, 2147483647);
-    lua_setfield(L, -2, "_SAPP_EVENTTYPE_FORCE_U32");
+    lua_setfield(L, -2, "FORCE_U32");
     lua_setfield(L, -2, "EventType");
 }
 
@@ -2947,13 +3982,13 @@ static void register_sapp_keycode(lua_State *L) {
 static void register_sapp_android_tooltype(lua_State *L) {
     lua_newtable(L);
     lua_pushinteger(L, 0);
-    lua_setfield(L, -2, "ANDROIDTOOLTYPE_UNKNOWN");
+    lua_setfield(L, -2, "UNKNOWN");
     lua_pushinteger(L, 1);
-    lua_setfield(L, -2, "ANDROIDTOOLTYPE_FINGER");
+    lua_setfield(L, -2, "FINGER");
     lua_pushinteger(L, 2);
-    lua_setfield(L, -2, "ANDROIDTOOLTYPE_STYLUS");
+    lua_setfield(L, -2, "STYLUS");
     lua_pushinteger(L, 3);
-    lua_setfield(L, -2, "ANDROIDTOOLTYPE_MOUSE");
+    lua_setfield(L, -2, "MOUSE");
     lua_setfield(L, -2, "AndroidTooltype");
 }
 
@@ -2973,270 +4008,270 @@ static void register_sapp_mousebutton(lua_State *L) {
 static void register_sapp_log_item(lua_State *L) {
     lua_newtable(L);
     lua_pushinteger(L, SAPP_LOGITEM_OK);
-    lua_setfield(L, -2, "LOGITEM_OK");
+    lua_setfield(L, -2, "OK");
     lua_pushinteger(L, SAPP_LOGITEM_MALLOC_FAILED);
-    lua_setfield(L, -2, "LOGITEM_MALLOC_FAILED");
+    lua_setfield(L, -2, "MALLOC_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_MACOS_INVALID_NSOPENGL_PROFILE);
-    lua_setfield(L, -2, "LOGITEM_MACOS_INVALID_NSOPENGL_PROFILE");
+    lua_setfield(L, -2, "MACOS_INVALID_NSOPENGL_PROFILE");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_LOAD_OPENGL32_DLL_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_LOAD_OPENGL32_DLL_FAILED");
+    lua_setfield(L, -2, "WIN32_LOAD_OPENGL32_DLL_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_CREATE_HELPER_WINDOW_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_CREATE_HELPER_WINDOW_FAILED");
+    lua_setfield(L, -2, "WIN32_CREATE_HELPER_WINDOW_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_HELPER_WINDOW_GETDC_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_HELPER_WINDOW_GETDC_FAILED");
+    lua_setfield(L, -2, "WIN32_HELPER_WINDOW_GETDC_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_DUMMY_CONTEXT_SET_PIXELFORMAT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_DUMMY_CONTEXT_SET_PIXELFORMAT_FAILED");
+    lua_setfield(L, -2, "WIN32_DUMMY_CONTEXT_SET_PIXELFORMAT_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_CREATE_DUMMY_CONTEXT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_CREATE_DUMMY_CONTEXT_FAILED");
+    lua_setfield(L, -2, "WIN32_CREATE_DUMMY_CONTEXT_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_DUMMY_CONTEXT_MAKE_CURRENT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_DUMMY_CONTEXT_MAKE_CURRENT_FAILED");
+    lua_setfield(L, -2, "WIN32_DUMMY_CONTEXT_MAKE_CURRENT_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_GET_PIXELFORMAT_ATTRIB_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_GET_PIXELFORMAT_ATTRIB_FAILED");
+    lua_setfield(L, -2, "WIN32_GET_PIXELFORMAT_ATTRIB_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_WGL_FIND_PIXELFORMAT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_WGL_FIND_PIXELFORMAT_FAILED");
+    lua_setfield(L, -2, "WIN32_WGL_FIND_PIXELFORMAT_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_WGL_DESCRIBE_PIXELFORMAT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_WGL_DESCRIBE_PIXELFORMAT_FAILED");
+    lua_setfield(L, -2, "WIN32_WGL_DESCRIBE_PIXELFORMAT_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_WGL_SET_PIXELFORMAT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_WGL_SET_PIXELFORMAT_FAILED");
+    lua_setfield(L, -2, "WIN32_WGL_SET_PIXELFORMAT_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_WGL_ARB_CREATE_CONTEXT_REQUIRED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_WGL_ARB_CREATE_CONTEXT_REQUIRED");
+    lua_setfield(L, -2, "WIN32_WGL_ARB_CREATE_CONTEXT_REQUIRED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_WGL_ARB_CREATE_CONTEXT_PROFILE_REQUIRED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_WGL_ARB_CREATE_CONTEXT_PROFILE_REQUIRED");
+    lua_setfield(L, -2, "WIN32_WGL_ARB_CREATE_CONTEXT_PROFILE_REQUIRED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_WGL_OPENGL_VERSION_NOT_SUPPORTED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_WGL_OPENGL_VERSION_NOT_SUPPORTED");
+    lua_setfield(L, -2, "WIN32_WGL_OPENGL_VERSION_NOT_SUPPORTED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_WGL_OPENGL_PROFILE_NOT_SUPPORTED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_WGL_OPENGL_PROFILE_NOT_SUPPORTED");
+    lua_setfield(L, -2, "WIN32_WGL_OPENGL_PROFILE_NOT_SUPPORTED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_WGL_INCOMPATIBLE_DEVICE_CONTEXT);
-    lua_setfield(L, -2, "LOGITEM_WIN32_WGL_INCOMPATIBLE_DEVICE_CONTEXT");
+    lua_setfield(L, -2, "WIN32_WGL_INCOMPATIBLE_DEVICE_CONTEXT");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_WGL_CREATE_CONTEXT_ATTRIBS_FAILED_OTHER);
-    lua_setfield(L, -2, "LOGITEM_WIN32_WGL_CREATE_CONTEXT_ATTRIBS_FAILED_OTHER");
+    lua_setfield(L, -2, "WIN32_WGL_CREATE_CONTEXT_ATTRIBS_FAILED_OTHER");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_D3D11_CREATE_DEVICE_AND_SWAPCHAIN_WITH_DEBUG_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_D3D11_CREATE_DEVICE_AND_SWAPCHAIN_WITH_DEBUG_FAILED");
+    lua_setfield(L, -2, "WIN32_D3D11_CREATE_DEVICE_AND_SWAPCHAIN_WITH_DEBUG_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_D3D11_GET_IDXGIFACTORY_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_D3D11_GET_IDXGIFACTORY_FAILED");
+    lua_setfield(L, -2, "WIN32_D3D11_GET_IDXGIFACTORY_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_D3D11_GET_IDXGIADAPTER_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_D3D11_GET_IDXGIADAPTER_FAILED");
+    lua_setfield(L, -2, "WIN32_D3D11_GET_IDXGIADAPTER_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_D3D11_QUERY_INTERFACE_IDXGIDEVICE1_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_D3D11_QUERY_INTERFACE_IDXGIDEVICE1_FAILED");
+    lua_setfield(L, -2, "WIN32_D3D11_QUERY_INTERFACE_IDXGIDEVICE1_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_REGISTER_RAW_INPUT_DEVICES_FAILED_MOUSE_LOCK);
-    lua_setfield(L, -2, "LOGITEM_WIN32_REGISTER_RAW_INPUT_DEVICES_FAILED_MOUSE_LOCK");
+    lua_setfield(L, -2, "WIN32_REGISTER_RAW_INPUT_DEVICES_FAILED_MOUSE_LOCK");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_REGISTER_RAW_INPUT_DEVICES_FAILED_MOUSE_UNLOCK);
-    lua_setfield(L, -2, "LOGITEM_WIN32_REGISTER_RAW_INPUT_DEVICES_FAILED_MOUSE_UNLOCK");
+    lua_setfield(L, -2, "WIN32_REGISTER_RAW_INPUT_DEVICES_FAILED_MOUSE_UNLOCK");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_GET_RAW_INPUT_DATA_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_GET_RAW_INPUT_DATA_FAILED");
+    lua_setfield(L, -2, "WIN32_GET_RAW_INPUT_DATA_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WIN32_DESTROYICON_FOR_CURSOR_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WIN32_DESTROYICON_FOR_CURSOR_FAILED");
+    lua_setfield(L, -2, "WIN32_DESTROYICON_FOR_CURSOR_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_LOAD_LIBGL_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_LOAD_LIBGL_FAILED");
+    lua_setfield(L, -2, "LINUX_GLX_LOAD_LIBGL_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_LOAD_ENTRY_POINTS_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_LOAD_ENTRY_POINTS_FAILED");
+    lua_setfield(L, -2, "LINUX_GLX_LOAD_ENTRY_POINTS_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_EXTENSION_NOT_FOUND);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_EXTENSION_NOT_FOUND");
+    lua_setfield(L, -2, "LINUX_GLX_EXTENSION_NOT_FOUND");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_QUERY_VERSION_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_QUERY_VERSION_FAILED");
+    lua_setfield(L, -2, "LINUX_GLX_QUERY_VERSION_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_VERSION_TOO_LOW);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_VERSION_TOO_LOW");
+    lua_setfield(L, -2, "LINUX_GLX_VERSION_TOO_LOW");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_NO_GLXFBCONFIGS);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_NO_GLXFBCONFIGS");
+    lua_setfield(L, -2, "LINUX_GLX_NO_GLXFBCONFIGS");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_NO_SUITABLE_GLXFBCONFIG);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_NO_SUITABLE_GLXFBCONFIG");
+    lua_setfield(L, -2, "LINUX_GLX_NO_SUITABLE_GLXFBCONFIG");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_GET_VISUAL_FROM_FBCONFIG_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_GET_VISUAL_FROM_FBCONFIG_FAILED");
+    lua_setfield(L, -2, "LINUX_GLX_GET_VISUAL_FROM_FBCONFIG_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_REQUIRED_EXTENSIONS_MISSING);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_REQUIRED_EXTENSIONS_MISSING");
+    lua_setfield(L, -2, "LINUX_GLX_REQUIRED_EXTENSIONS_MISSING");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_CREATE_CONTEXT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_CREATE_CONTEXT_FAILED");
+    lua_setfield(L, -2, "LINUX_GLX_CREATE_CONTEXT_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_GLX_CREATE_WINDOW_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_GLX_CREATE_WINDOW_FAILED");
+    lua_setfield(L, -2, "LINUX_GLX_CREATE_WINDOW_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_X11_CREATE_WINDOW_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_X11_CREATE_WINDOW_FAILED");
+    lua_setfield(L, -2, "LINUX_X11_CREATE_WINDOW_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_EGL_BIND_OPENGL_API_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_EGL_BIND_OPENGL_API_FAILED");
+    lua_setfield(L, -2, "LINUX_EGL_BIND_OPENGL_API_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_EGL_BIND_OPENGL_ES_API_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_EGL_BIND_OPENGL_ES_API_FAILED");
+    lua_setfield(L, -2, "LINUX_EGL_BIND_OPENGL_ES_API_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_EGL_GET_DISPLAY_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_EGL_GET_DISPLAY_FAILED");
+    lua_setfield(L, -2, "LINUX_EGL_GET_DISPLAY_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_EGL_INITIALIZE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_EGL_INITIALIZE_FAILED");
+    lua_setfield(L, -2, "LINUX_EGL_INITIALIZE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_EGL_NO_CONFIGS);
-    lua_setfield(L, -2, "LOGITEM_LINUX_EGL_NO_CONFIGS");
+    lua_setfield(L, -2, "LINUX_EGL_NO_CONFIGS");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_EGL_NO_NATIVE_VISUAL);
-    lua_setfield(L, -2, "LOGITEM_LINUX_EGL_NO_NATIVE_VISUAL");
+    lua_setfield(L, -2, "LINUX_EGL_NO_NATIVE_VISUAL");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_EGL_GET_VISUAL_INFO_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_EGL_GET_VISUAL_INFO_FAILED");
+    lua_setfield(L, -2, "LINUX_EGL_GET_VISUAL_INFO_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_EGL_CREATE_WINDOW_SURFACE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_EGL_CREATE_WINDOW_SURFACE_FAILED");
+    lua_setfield(L, -2, "LINUX_EGL_CREATE_WINDOW_SURFACE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_EGL_CREATE_CONTEXT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_EGL_CREATE_CONTEXT_FAILED");
+    lua_setfield(L, -2, "LINUX_EGL_CREATE_CONTEXT_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_EGL_MAKE_CURRENT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_EGL_MAKE_CURRENT_FAILED");
+    lua_setfield(L, -2, "LINUX_EGL_MAKE_CURRENT_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_X11_OPEN_DISPLAY_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_X11_OPEN_DISPLAY_FAILED");
+    lua_setfield(L, -2, "LINUX_X11_OPEN_DISPLAY_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_X11_QUERY_SYSTEM_DPI_FAILED);
-    lua_setfield(L, -2, "LOGITEM_LINUX_X11_QUERY_SYSTEM_DPI_FAILED");
+    lua_setfield(L, -2, "LINUX_X11_QUERY_SYSTEM_DPI_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_X11_DROPPED_FILE_URI_WRONG_SCHEME);
-    lua_setfield(L, -2, "LOGITEM_LINUX_X11_DROPPED_FILE_URI_WRONG_SCHEME");
+    lua_setfield(L, -2, "LINUX_X11_DROPPED_FILE_URI_WRONG_SCHEME");
     lua_pushinteger(L, SAPP_LOGITEM_LINUX_X11_FAILED_TO_BECOME_OWNER_OF_CLIPBOARD);
-    lua_setfield(L, -2, "LOGITEM_LINUX_X11_FAILED_TO_BECOME_OWNER_OF_CLIPBOARD");
+    lua_setfield(L, -2, "LINUX_X11_FAILED_TO_BECOME_OWNER_OF_CLIPBOARD");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_UNSUPPORTED_INPUT_EVENT_INPUT_CB);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_UNSUPPORTED_INPUT_EVENT_INPUT_CB");
+    lua_setfield(L, -2, "ANDROID_UNSUPPORTED_INPUT_EVENT_INPUT_CB");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_UNSUPPORTED_INPUT_EVENT_MAIN_CB);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_UNSUPPORTED_INPUT_EVENT_MAIN_CB");
+    lua_setfield(L, -2, "ANDROID_UNSUPPORTED_INPUT_EVENT_MAIN_CB");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_READ_MSG_FAILED);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_READ_MSG_FAILED");
+    lua_setfield(L, -2, "ANDROID_READ_MSG_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_WRITE_MSG_FAILED);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_WRITE_MSG_FAILED");
+    lua_setfield(L, -2, "ANDROID_WRITE_MSG_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_MSG_CREATE);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_MSG_CREATE");
+    lua_setfield(L, -2, "ANDROID_MSG_CREATE");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_MSG_RESUME);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_MSG_RESUME");
+    lua_setfield(L, -2, "ANDROID_MSG_RESUME");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_MSG_PAUSE);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_MSG_PAUSE");
+    lua_setfield(L, -2, "ANDROID_MSG_PAUSE");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_MSG_FOCUS);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_MSG_FOCUS");
+    lua_setfield(L, -2, "ANDROID_MSG_FOCUS");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_MSG_NO_FOCUS);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_MSG_NO_FOCUS");
+    lua_setfield(L, -2, "ANDROID_MSG_NO_FOCUS");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_MSG_SET_NATIVE_WINDOW);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_MSG_SET_NATIVE_WINDOW");
+    lua_setfield(L, -2, "ANDROID_MSG_SET_NATIVE_WINDOW");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_MSG_SET_INPUT_QUEUE);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_MSG_SET_INPUT_QUEUE");
+    lua_setfield(L, -2, "ANDROID_MSG_SET_INPUT_QUEUE");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_MSG_DESTROY);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_MSG_DESTROY");
+    lua_setfield(L, -2, "ANDROID_MSG_DESTROY");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_UNKNOWN_MSG);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_UNKNOWN_MSG");
+    lua_setfield(L, -2, "ANDROID_UNKNOWN_MSG");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_LOOP_THREAD_STARTED);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_LOOP_THREAD_STARTED");
+    lua_setfield(L, -2, "ANDROID_LOOP_THREAD_STARTED");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_LOOP_THREAD_DONE);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_LOOP_THREAD_DONE");
+    lua_setfield(L, -2, "ANDROID_LOOP_THREAD_DONE");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONSTART);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONSTART");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONSTART");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONRESUME);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONRESUME");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONRESUME");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONSAVEINSTANCESTATE);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONSAVEINSTANCESTATE");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONSAVEINSTANCESTATE");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONWINDOWFOCUSCHANGED);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONWINDOWFOCUSCHANGED");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONWINDOWFOCUSCHANGED");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONPAUSE);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONPAUSE");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONPAUSE");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONSTOP);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONSTOP");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONSTOP");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONNATIVEWINDOWCREATED);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONNATIVEWINDOWCREATED");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONNATIVEWINDOWCREATED");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONNATIVEWINDOWDESTROYED);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONNATIVEWINDOWDESTROYED");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONNATIVEWINDOWDESTROYED");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONINPUTQUEUECREATED);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONINPUTQUEUECREATED");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONINPUTQUEUECREATED");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONINPUTQUEUEDESTROYED);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONINPUTQUEUEDESTROYED");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONINPUTQUEUEDESTROYED");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONCONFIGURATIONCHANGED);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONCONFIGURATIONCHANGED");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONCONFIGURATIONCHANGED");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONLOWMEMORY);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONLOWMEMORY");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONLOWMEMORY");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONDESTROY);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONDESTROY");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONDESTROY");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_DONE);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_DONE");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_DONE");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_ONCREATE);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_ONCREATE");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_ONCREATE");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_CREATE_THREAD_PIPE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_CREATE_THREAD_PIPE_FAILED");
+    lua_setfield(L, -2, "ANDROID_CREATE_THREAD_PIPE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_ANDROID_NATIVE_ACTIVITY_CREATE_SUCCESS);
-    lua_setfield(L, -2, "LOGITEM_ANDROID_NATIVE_ACTIVITY_CREATE_SUCCESS");
+    lua_setfield(L, -2, "ANDROID_NATIVE_ACTIVITY_CREATE_SUCCESS");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_DEVICE_LOST);
-    lua_setfield(L, -2, "LOGITEM_WGPU_DEVICE_LOST");
+    lua_setfield(L, -2, "WGPU_DEVICE_LOST");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_DEVICE_LOG);
-    lua_setfield(L, -2, "LOGITEM_WGPU_DEVICE_LOG");
+    lua_setfield(L, -2, "WGPU_DEVICE_LOG");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_DEVICE_UNCAPTURED_ERROR);
-    lua_setfield(L, -2, "LOGITEM_WGPU_DEVICE_UNCAPTURED_ERROR");
+    lua_setfield(L, -2, "WGPU_DEVICE_UNCAPTURED_ERROR");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_SWAPCHAIN_CREATE_SURFACE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WGPU_SWAPCHAIN_CREATE_SURFACE_FAILED");
+    lua_setfield(L, -2, "WGPU_SWAPCHAIN_CREATE_SURFACE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_SWAPCHAIN_SURFACE_GET_CAPABILITIES_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WGPU_SWAPCHAIN_SURFACE_GET_CAPABILITIES_FAILED");
+    lua_setfield(L, -2, "WGPU_SWAPCHAIN_SURFACE_GET_CAPABILITIES_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_SWAPCHAIN_CREATE_DEPTH_STENCIL_TEXTURE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WGPU_SWAPCHAIN_CREATE_DEPTH_STENCIL_TEXTURE_FAILED");
+    lua_setfield(L, -2, "WGPU_SWAPCHAIN_CREATE_DEPTH_STENCIL_TEXTURE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_SWAPCHAIN_CREATE_DEPTH_STENCIL_VIEW_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WGPU_SWAPCHAIN_CREATE_DEPTH_STENCIL_VIEW_FAILED");
+    lua_setfield(L, -2, "WGPU_SWAPCHAIN_CREATE_DEPTH_STENCIL_VIEW_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_SWAPCHAIN_CREATE_MSAA_TEXTURE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WGPU_SWAPCHAIN_CREATE_MSAA_TEXTURE_FAILED");
+    lua_setfield(L, -2, "WGPU_SWAPCHAIN_CREATE_MSAA_TEXTURE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_SWAPCHAIN_CREATE_MSAA_VIEW_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WGPU_SWAPCHAIN_CREATE_MSAA_VIEW_FAILED");
+    lua_setfield(L, -2, "WGPU_SWAPCHAIN_CREATE_MSAA_VIEW_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_SWAPCHAIN_GETCURRENTTEXTURE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WGPU_SWAPCHAIN_GETCURRENTTEXTURE_FAILED");
+    lua_setfield(L, -2, "WGPU_SWAPCHAIN_GETCURRENTTEXTURE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_REQUEST_DEVICE_STATUS_ERROR);
-    lua_setfield(L, -2, "LOGITEM_WGPU_REQUEST_DEVICE_STATUS_ERROR");
+    lua_setfield(L, -2, "WGPU_REQUEST_DEVICE_STATUS_ERROR");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_REQUEST_DEVICE_STATUS_UNKNOWN);
-    lua_setfield(L, -2, "LOGITEM_WGPU_REQUEST_DEVICE_STATUS_UNKNOWN");
+    lua_setfield(L, -2, "WGPU_REQUEST_DEVICE_STATUS_UNKNOWN");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_REQUEST_ADAPTER_STATUS_UNAVAILABLE);
-    lua_setfield(L, -2, "LOGITEM_WGPU_REQUEST_ADAPTER_STATUS_UNAVAILABLE");
+    lua_setfield(L, -2, "WGPU_REQUEST_ADAPTER_STATUS_UNAVAILABLE");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_REQUEST_ADAPTER_STATUS_ERROR);
-    lua_setfield(L, -2, "LOGITEM_WGPU_REQUEST_ADAPTER_STATUS_ERROR");
+    lua_setfield(L, -2, "WGPU_REQUEST_ADAPTER_STATUS_ERROR");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_REQUEST_ADAPTER_STATUS_UNKNOWN);
-    lua_setfield(L, -2, "LOGITEM_WGPU_REQUEST_ADAPTER_STATUS_UNKNOWN");
+    lua_setfield(L, -2, "WGPU_REQUEST_ADAPTER_STATUS_UNKNOWN");
     lua_pushinteger(L, SAPP_LOGITEM_WGPU_CREATE_INSTANCE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_WGPU_CREATE_INSTANCE_FAILED");
+    lua_setfield(L, -2, "WGPU_CREATE_INSTANCE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_ALLOC_DEVICE_MEMORY_NO_SUITABLE_MEMORY_TYPE);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_ALLOC_DEVICE_MEMORY_NO_SUITABLE_MEMORY_TYPE");
+    lua_setfield(L, -2, "VULKAN_ALLOC_DEVICE_MEMORY_NO_SUITABLE_MEMORY_TYPE");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_ALLOCATE_MEMORY_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_ALLOCATE_MEMORY_FAILED");
+    lua_setfield(L, -2, "VULKAN_ALLOCATE_MEMORY_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_CREATE_INSTANCE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_CREATE_INSTANCE_FAILED");
+    lua_setfield(L, -2, "VULKAN_CREATE_INSTANCE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_ENUMERATE_PHYSICAL_DEVICES_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_ENUMERATE_PHYSICAL_DEVICES_FAILED");
+    lua_setfield(L, -2, "VULKAN_ENUMERATE_PHYSICAL_DEVICES_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_NO_PHYSICAL_DEVICES_FOUND);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_NO_PHYSICAL_DEVICES_FOUND");
+    lua_setfield(L, -2, "VULKAN_NO_PHYSICAL_DEVICES_FOUND");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_NO_SUITABLE_PHYSICAL_DEVICE_FOUND);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_NO_SUITABLE_PHYSICAL_DEVICE_FOUND");
+    lua_setfield(L, -2, "VULKAN_NO_SUITABLE_PHYSICAL_DEVICE_FOUND");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_CREATE_DEVICE_FAILED_EXTENSION_NOT_PRESENT);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_CREATE_DEVICE_FAILED_EXTENSION_NOT_PRESENT");
+    lua_setfield(L, -2, "VULKAN_CREATE_DEVICE_FAILED_EXTENSION_NOT_PRESENT");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_CREATE_DEVICE_FAILED_FEATURE_NOT_PRESENT);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_CREATE_DEVICE_FAILED_FEATURE_NOT_PRESENT");
+    lua_setfield(L, -2, "VULKAN_CREATE_DEVICE_FAILED_FEATURE_NOT_PRESENT");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_CREATE_DEVICE_FAILED_INITIALIZATION_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_CREATE_DEVICE_FAILED_INITIALIZATION_FAILED");
+    lua_setfield(L, -2, "VULKAN_CREATE_DEVICE_FAILED_INITIALIZATION_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_CREATE_DEVICE_FAILED_OTHER);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_CREATE_DEVICE_FAILED_OTHER");
+    lua_setfield(L, -2, "VULKAN_CREATE_DEVICE_FAILED_OTHER");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_CREATE_SURFACE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_CREATE_SURFACE_FAILED");
+    lua_setfield(L, -2, "VULKAN_CREATE_SURFACE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_CREATE_SWAPCHAIN_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_CREATE_SWAPCHAIN_FAILED");
+    lua_setfield(L, -2, "VULKAN_CREATE_SWAPCHAIN_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_SWAPCHAIN_CREATE_IMAGE_VIEW_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_SWAPCHAIN_CREATE_IMAGE_VIEW_FAILED");
+    lua_setfield(L, -2, "VULKAN_SWAPCHAIN_CREATE_IMAGE_VIEW_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_SWAPCHAIN_CREATE_IMAGE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_SWAPCHAIN_CREATE_IMAGE_FAILED");
+    lua_setfield(L, -2, "VULKAN_SWAPCHAIN_CREATE_IMAGE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_SWAPCHAIN_ALLOC_IMAGE_DEVICE_MEMORY_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_SWAPCHAIN_ALLOC_IMAGE_DEVICE_MEMORY_FAILED");
+    lua_setfield(L, -2, "VULKAN_SWAPCHAIN_ALLOC_IMAGE_DEVICE_MEMORY_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_SWAPCHAIN_BIND_IMAGE_MEMORY_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_SWAPCHAIN_BIND_IMAGE_MEMORY_FAILED");
+    lua_setfield(L, -2, "VULKAN_SWAPCHAIN_BIND_IMAGE_MEMORY_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_ACQUIRE_NEXT_IMAGE_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_ACQUIRE_NEXT_IMAGE_FAILED");
+    lua_setfield(L, -2, "VULKAN_ACQUIRE_NEXT_IMAGE_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_VULKAN_QUEUE_PRESENT_FAILED);
-    lua_setfield(L, -2, "LOGITEM_VULKAN_QUEUE_PRESENT_FAILED");
+    lua_setfield(L, -2, "VULKAN_QUEUE_PRESENT_FAILED");
     lua_pushinteger(L, SAPP_LOGITEM_IMAGE_DATA_SIZE_MISMATCH);
-    lua_setfield(L, -2, "LOGITEM_IMAGE_DATA_SIZE_MISMATCH");
+    lua_setfield(L, -2, "IMAGE_DATA_SIZE_MISMATCH");
     lua_pushinteger(L, SAPP_LOGITEM_DROPPED_FILE_PATH_TOO_LONG);
-    lua_setfield(L, -2, "LOGITEM_DROPPED_FILE_PATH_TOO_LONG");
+    lua_setfield(L, -2, "DROPPED_FILE_PATH_TOO_LONG");
     lua_pushinteger(L, SAPP_LOGITEM_CLIPBOARD_STRING_TOO_BIG);
-    lua_setfield(L, -2, "LOGITEM_CLIPBOARD_STRING_TOO_BIG");
+    lua_setfield(L, -2, "CLIPBOARD_STRING_TOO_BIG");
     lua_setfield(L, -2, "LogItem");
 }
 
 static void register_sapp_pixel_format(lua_State *L) {
     lua_newtable(L);
     lua_pushinteger(L, _SAPP_PIXELFORMAT_DEFAULT);
-    lua_setfield(L, -2, "_SAPP_PIXELFORMAT_DEFAULT");
+    lua_setfield(L, -2, "DEFAULT");
     lua_pushinteger(L, SAPP_PIXELFORMAT_NONE);
-    lua_setfield(L, -2, "PIXELFORMAT_NONE");
+    lua_setfield(L, -2, "NONE");
     lua_pushinteger(L, SAPP_PIXELFORMAT_RGBA8);
-    lua_setfield(L, -2, "PIXELFORMAT_RGBA8");
+    lua_setfield(L, -2, "RGBA8");
     lua_pushinteger(L, SAPP_PIXELFORMAT_SRGB8A8);
-    lua_setfield(L, -2, "PIXELFORMAT_SRGB8A8");
+    lua_setfield(L, -2, "SRGB8A8");
     lua_pushinteger(L, SAPP_PIXELFORMAT_BGRA8);
-    lua_setfield(L, -2, "PIXELFORMAT_BGRA8");
+    lua_setfield(L, -2, "BGRA8");
     lua_pushinteger(L, SAPP_PIXELFORMAT_SBGRA8);
-    lua_setfield(L, -2, "PIXELFORMAT_SBGRA8");
+    lua_setfield(L, -2, "SBGRA8");
     lua_pushinteger(L, SAPP_PIXELFORMAT_DEPTH);
-    lua_setfield(L, -2, "PIXELFORMAT_DEPTH");
+    lua_setfield(L, -2, "DEPTH");
     lua_pushinteger(L, SAPP_PIXELFORMAT_DEPTH_STENCIL);
-    lua_setfield(L, -2, "PIXELFORMAT_DEPTH_STENCIL");
+    lua_setfield(L, -2, "DEPTH_STENCIL");
     lua_pushinteger(L, 2147483647);
     lua_setfield(L, -2, "_SA_PPPIXELFORMAT_FORCE_U32");
     lua_setfield(L, -2, "PixelFormat");
@@ -3245,72 +4280,72 @@ static void register_sapp_pixel_format(lua_State *L) {
 static void register_sapp_html5_fetch_error(lua_State *L) {
     lua_newtable(L);
     lua_pushinteger(L, SAPP_HTML5_FETCH_ERROR_NO_ERROR);
-    lua_setfield(L, -2, "FETCH_ERROR_NO_ERROR");
+    lua_setfield(L, -2, "HTML5_FETCH_ERROR_NO_ERROR");
     lua_pushinteger(L, SAPP_HTML5_FETCH_ERROR_BUFFER_TOO_SMALL);
-    lua_setfield(L, -2, "FETCH_ERROR_BUFFER_TOO_SMALL");
+    lua_setfield(L, -2, "HTML5_FETCH_ERROR_BUFFER_TOO_SMALL");
     lua_pushinteger(L, SAPP_HTML5_FETCH_ERROR_OTHER);
-    lua_setfield(L, -2, "FETCH_ERROR_OTHER");
+    lua_setfield(L, -2, "HTML5_FETCH_ERROR_OTHER");
     lua_setfield(L, -2, "Html5FetchError");
 }
 
 static void register_sapp_mouse_cursor(lua_State *L) {
     lua_newtable(L);
     lua_pushinteger(L, 0);
-    lua_setfield(L, -2, "MOUSECURSOR_DEFAULT");
+    lua_setfield(L, -2, "DEFAULT");
     lua_pushinteger(L, SAPP_MOUSECURSOR_ARROW);
-    lua_setfield(L, -2, "MOUSECURSOR_ARROW");
+    lua_setfield(L, -2, "ARROW");
     lua_pushinteger(L, SAPP_MOUSECURSOR_IBEAM);
-    lua_setfield(L, -2, "MOUSECURSOR_IBEAM");
+    lua_setfield(L, -2, "IBEAM");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CROSSHAIR);
-    lua_setfield(L, -2, "MOUSECURSOR_CROSSHAIR");
+    lua_setfield(L, -2, "CROSSHAIR");
     lua_pushinteger(L, SAPP_MOUSECURSOR_POINTING_HAND);
-    lua_setfield(L, -2, "MOUSECURSOR_POINTING_HAND");
+    lua_setfield(L, -2, "POINTING_HAND");
     lua_pushinteger(L, SAPP_MOUSECURSOR_RESIZE_EW);
-    lua_setfield(L, -2, "MOUSECURSOR_RESIZE_EW");
+    lua_setfield(L, -2, "RESIZE_EW");
     lua_pushinteger(L, SAPP_MOUSECURSOR_RESIZE_NS);
-    lua_setfield(L, -2, "MOUSECURSOR_RESIZE_NS");
+    lua_setfield(L, -2, "RESIZE_NS");
     lua_pushinteger(L, SAPP_MOUSECURSOR_RESIZE_NWSE);
-    lua_setfield(L, -2, "MOUSECURSOR_RESIZE_NWSE");
+    lua_setfield(L, -2, "RESIZE_NWSE");
     lua_pushinteger(L, SAPP_MOUSECURSOR_RESIZE_NESW);
-    lua_setfield(L, -2, "MOUSECURSOR_RESIZE_NESW");
+    lua_setfield(L, -2, "RESIZE_NESW");
     lua_pushinteger(L, SAPP_MOUSECURSOR_RESIZE_ALL);
-    lua_setfield(L, -2, "MOUSECURSOR_RESIZE_ALL");
+    lua_setfield(L, -2, "RESIZE_ALL");
     lua_pushinteger(L, SAPP_MOUSECURSOR_NOT_ALLOWED);
-    lua_setfield(L, -2, "MOUSECURSOR_NOT_ALLOWED");
+    lua_setfield(L, -2, "NOT_ALLOWED");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_0);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_0");
+    lua_setfield(L, -2, "CUSTOM_0");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_1);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_1");
+    lua_setfield(L, -2, "CUSTOM_1");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_2);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_2");
+    lua_setfield(L, -2, "CUSTOM_2");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_3);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_3");
+    lua_setfield(L, -2, "CUSTOM_3");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_4);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_4");
+    lua_setfield(L, -2, "CUSTOM_4");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_5);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_5");
+    lua_setfield(L, -2, "CUSTOM_5");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_6);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_6");
+    lua_setfield(L, -2, "CUSTOM_6");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_7);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_7");
+    lua_setfield(L, -2, "CUSTOM_7");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_8);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_8");
+    lua_setfield(L, -2, "CUSTOM_8");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_9);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_9");
+    lua_setfield(L, -2, "CUSTOM_9");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_10);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_10");
+    lua_setfield(L, -2, "CUSTOM_10");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_11);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_11");
+    lua_setfield(L, -2, "CUSTOM_11");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_12);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_12");
+    lua_setfield(L, -2, "CUSTOM_12");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_13);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_13");
+    lua_setfield(L, -2, "CUSTOM_13");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_14);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_14");
+    lua_setfield(L, -2, "CUSTOM_14");
     lua_pushinteger(L, SAPP_MOUSECURSOR_CUSTOM_15);
-    lua_setfield(L, -2, "MOUSECURSOR_CUSTOM_15");
+    lua_setfield(L, -2, "CUSTOM_15");
     lua_pushinteger(L, _SAPP_MOUSECURSOR_NUM);
-    lua_setfield(L, -2, "_SAPP_MOUSECURSOR_NUM");
+    lua_setfield(L, -2, "NUM");
     lua_setfield(L, -2, "MouseCursor");
 }
 
