@@ -10,7 +10,10 @@
       "name": "base",
       "hidden": true,
       "binaryDir": "${sourceDir}/build/${presetName}",
-      "installDir": "${sourceDir}/install/${presetName}"
+      "installDir": "${sourceDir}/install/${presetName}",
+      "cacheVariables": {
+        "SOKOL_LUA_BUILD_EXAMPLE": "ON"
+      }
     },
     {
       "name": "windows-d3d11",
