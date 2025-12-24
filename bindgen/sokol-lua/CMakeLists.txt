@@ -65,6 +65,7 @@ endif()
 
 # Sokol-Lua sources
 set(SOKOL_LUA_SOURCES
+    src/sokol_impl.c
     src/sokol_log.c
     src/sokol_gfx.c
     src/sokol_app.c
@@ -95,10 +96,7 @@ target_include_directories(sokol-lua
 # Link Lua
 target_link_libraries(sokol-lua PUBLIC ${LUA_TARGET})
 
-# Sokol implementation defines
-target_compile_definitions(sokol-lua PRIVATE SOKOL_IMPL)
-
-# Backend selection
+# Backend selection for sokol_impl.c
 if(SOKOL_LUA_BACKEND_GL)
     target_compile_definitions(sokol-lua PRIVATE SOKOL_GLCORE)
 elseif(SOKOL_LUA_BACKEND_GLES3)
