@@ -182,6 +182,29 @@ if(SOKOL_LUA_BUILD_EXAMPLE)
         ${LUA_INCLUDE}
     )
     target_link_libraries(sokol-lua-example sokol-lua)
+
+    # Backend defines for example
+    if(SOKOL_LUA_BACKEND_GL)
+        target_compile_definitions(sokol-lua-example PRIVATE SOKOL_GLCORE)
+    elseif(SOKOL_LUA_BACKEND_GLES3)
+        target_compile_definitions(sokol-lua-example PRIVATE SOKOL_GLES3)
+    elseif(SOKOL_LUA_BACKEND_D3D11)
+        target_compile_definitions(sokol-lua-example PRIVATE SOKOL_D3D11)
+    elseif(SOKOL_LUA_BACKEND_METAL)
+        target_compile_definitions(sokol-lua-example PRIVATE SOKOL_METAL)
+    elseif(SOKOL_LUA_BACKEND_WGPU)
+        target_compile_definitions(sokol-lua-example PRIVATE SOKOL_WGPU)
+    else()
+        # Auto-detect
+        if(WIN32)
+            target_compile_definitions(sokol-lua-example PRIVATE SOKOL_D3D11)
+        elseif(APPLE)
+            target_compile_definitions(sokol-lua-example PRIVATE SOKOL_METAL)
+        else()
+            target_compile_definitions(sokol-lua-example PRIVATE SOKOL_GLCORE)
+        endif()
+    endif()
+
     # Copy lua script
     add_custom_command(TARGET sokol-lua-example POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
