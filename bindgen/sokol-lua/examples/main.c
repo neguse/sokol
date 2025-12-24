@@ -7,6 +7,7 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
+#include <math.h>
 
 /* declare luaopen functions */
 extern int luaopen_sokol_gfx(lua_State *L);
@@ -16,6 +17,8 @@ extern int luaopen_sokol_log(lua_State *L);
 extern int luaopen_sokol_time(lua_State *L);
 
 static lua_State *L = NULL;
+static sg_pass_action pass_action;
+static double t = 0;
 
 static void call_lua(const char *func) {
     lua_getglobal(L, func);
@@ -34,11 +37,27 @@ static void init(void) {
         .environment = sglue_environment(),
         .logger.func = slog_func,
     });
+    pass_action = (sg_pass_action){
+        .colors[0] = {
+            .load_action = SG_LOADACTION_CLEAR,
+            .clear_value = { 0.2f, 0.2f, 0.8f, 1.0f }
+        }
+    };
     call_lua("init");
 }
 
 static void frame(void) {
+    t += 1.0 / 60.0;
+    float r = (float)(sin(t) + 1.0) * 0.5f;
+    float g = (float)(sin(t + 2.0) + 1.0) * 0.5f;
+    float b = (float)(sin(t + 4.0) + 1.0) * 0.5f;
+    pass_action.colors[0].clear_value = (sg_color){ r, g, b, 1.0f };
+
+    sg_begin_pass(&(sg_pass){ .action = pass_action, .swapchain = sglue_swapchain() });
+    /* Let Lua draw here if needed */
     call_lua("frame");
+    sg_end_pass();
+    sg_commit();
 }
 
 static void cleanup(void) {
