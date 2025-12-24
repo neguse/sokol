@@ -173,6 +173,23 @@ if(SOKOL_LUA_BUILD_INTERPRETER AND NOT SOKOL_LUA_USE_SYSTEM_LUA)
     endif()
 endif()
 
+# Example
+option(SOKOL_LUA_BUILD_EXAMPLE "Build example" OFF)
+if(SOKOL_LUA_BUILD_EXAMPLE)
+    add_executable(sokol-lua-example WIN32 examples/main.c)
+    target_include_directories(sokol-lua-example PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/c
+        ${LUA_INCLUDE}
+    )
+    target_link_libraries(sokol-lua-example sokol-lua)
+    # Copy lua script
+    add_custom_command(TARGET sokol-lua-example POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/examples/main.lua
+        $<TARGET_FILE_DIR:sokol-lua-example>/main.lua
+    )
+endif()
+
 # Install
 install(TARGETS sokol-lua
     LIBRARY DESTINATION lib
