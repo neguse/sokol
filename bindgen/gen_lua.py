@@ -263,7 +263,17 @@ def gen_array_field_init(field_name, field_type, prefix):
         l(f'                    ud->{field_name}[i] = ({array_type})lua_tonumber(L, -1);')
     elif is_struct_type(array_type):
         inner_struct_name = as_struct_metatable_name(array_type)
-        l(f'                    if (lua_istable(L, -1)) {{')
+        # Special case: sg_range can be initialized from a string
+        if array_type == 'sg_range':
+            l(f'                    if (lua_isstring(L, -1)) {{')
+            l(f'                        /* Initialize sg_range from binary string */')
+            l(f'                        size_t len;')
+            l(f'                        const char* data = lua_tolstring(L, -1, &len);')
+            l(f'                        ud->{field_name}[i].ptr = data;')
+            l(f'                        ud->{field_name}[i].size = len;')
+            l(f'                    }} else if (lua_istable(L, -1)) {{')
+        else:
+            l(f'                    if (lua_istable(L, -1)) {{')
         l(f'                        /* Initialize from inline table */')
         l(f'                        lua_pushcfunction(L, l_{array_type}_new);')
         l(f'                        lua_pushvalue(L, -2);')
@@ -285,6 +295,36 @@ def gen_array_field_init(field_name, field_type, prefix):
 
 def gen_struct_new(struct_name, c_struct_name, fields, prefix):
     """Generate a constructor function for a struct that accepts optional table"""
+    # Special case for sg_range: accept string as binary data
+    if c_struct_name == 'sg_range':
+        l(f'static int l_{c_struct_name}_new(lua_State *L) {{')
+        l(f'    /* sg_range can be created from a string (binary data) or table */')
+        l(f'    {c_struct_name}* ud = ({c_struct_name}*)lua_newuserdatauv(L, sizeof({c_struct_name}), 1);')
+        l(f'    memset(ud, 0, sizeof({c_struct_name}));')
+        l(f'    luaL_setmetatable(L, "sokol.{struct_name}");')
+        l('')
+        l('    if (lua_isstring(L, 1)) {')
+        l('        /* Initialize from string (binary data) */')
+        l('        size_t len;')
+        l('        const char* data = lua_tolstring(L, 1, &len);')
+        l('        ud->ptr = data;')
+        l('        ud->size = len;')
+        l('        /* Keep reference to string to prevent GC */')
+        l('        lua_pushvalue(L, 1);')
+        l('        lua_setiuservalue(L, -2, 1);')
+        l('    } else if (lua_istable(L, 1)) {')
+        l('        lua_getfield(L, 1, "ptr");')
+        l('        if (!lua_isnil(L, -1)) ud->ptr = lua_touserdata(L, -1);')
+        l('        lua_pop(L, 1);')
+        l('        lua_getfield(L, 1, "size");')
+        l('        if (!lua_isnil(L, -1)) ud->size = (size_t)lua_tointeger(L, -1);')
+        l('        lua_pop(L, 1);')
+        l('    }')
+        l('    return 1;')
+        l('}')
+        l('')
+        return
+
     l(f'static int l_{c_struct_name}_new(lua_State *L) {{')
     l(f'    {c_struct_name}* ud = ({c_struct_name}*)lua_newuserdatauv(L, sizeof({c_struct_name}), 0);')
     l(f'    memset(ud, 0, sizeof({c_struct_name}));')
@@ -315,7 +355,17 @@ def gen_struct_new(struct_name, c_struct_name, fields, prefix):
             l(f'            ud->{field_name} = lua_tostring(L, -1);')
         elif is_struct_type(field_type):
             inner_struct_name = as_struct_metatable_name(field_type)
-            l(f'            if (lua_istable(L, -1)) {{')
+            # Special case: sg_range can be initialized from a string
+            if field_type == 'sg_range':
+                l(f'            if (lua_isstring(L, -1)) {{')
+                l(f'                /* Initialize sg_range from binary string */')
+                l(f'                size_t len;')
+                l(f'                const char* data = lua_tolstring(L, -1, &len);')
+                l(f'                ud->{field_name}.ptr = data;')
+                l(f'                ud->{field_name}.size = len;')
+                l(f'            }} else if (lua_istable(L, -1)) {{')
+            else:
+                l(f'            if (lua_istable(L, -1)) {{')
             l(f'                /* Initialize from inline table */')
             l(f'                lua_pushcfunction(L, l_{field_type}_new);')
             l(f'                lua_pushvalue(L, -2);')

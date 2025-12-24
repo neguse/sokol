@@ -4,6 +4,7 @@ local app = require("sokol.app")
 local glue = require("sokol.glue")
 local slog = require("sokol.log")
 local stm = require("sokol.time")
+local sdtx = require("sokol.debugtext")
 
 local function log(msg)
     slog.func("lua", 1, 0, msg, 0, "", nil)
@@ -354,14 +355,50 @@ local function compile_shader(source, program_name)
     log("compile_shader: vs_file = " .. vs_file)
     log("compile_shader: fs_file = " .. fs_file)
 
-    -- 16 bytes for uniform block (4 floats: time, aspect, pad, pad)
-    local shd, err = gfx.load_shader_bytecode(vs_file, fs_file, 16)
-    log("compile_shader: load result = " .. tostring(shd) .. ", err = " .. tostring(err))
+    -- Read shader files
+    local vs_f = io.open(vs_file, "rb")
+    if not vs_f then
+        log("Failed to open VS file: " .. vs_file)
+        return nil
+    end
+    local vs_data = vs_f:read("*a")
+    vs_f:close()
+
+    local fs_f = io.open(fs_file, "rb")
+    if not fs_f then
+        log("Failed to open FS file: " .. fs_file)
+        return nil
+    end
+    local fs_data = fs_f:read("*a")
+    fs_f:close()
+
     os.remove(vs_file)
     os.remove(fs_file)
 
-    if not shd then
-        log("Failed to load shader: " .. (err or "unknown error"))
+    -- Create shader using generated bindings
+    local backend = gfx.query_backend()
+    local is_glsl = (backend == gfx.Backend.GLCORE or backend == gfx.Backend.GLES3)
+
+    local desc_table = {
+        vertex_func = is_glsl and { source = vs_data } or { bytecode = vs_data },
+        fragment_func = is_glsl and { source = fs_data } or { bytecode = fs_data },
+        uniform_blocks = {{
+            size = 16,  -- 4 floats: time, aspect, pad, pad
+            stage = gfx.ShaderStage.FRAGMENT,
+        }},
+    }
+
+    -- D3D11 needs attribute semantics
+    if backend == gfx.Backend.D3D11 then
+        desc_table.attrs = {
+            { hlsl_sem_name = "TEXCOORD", hlsl_sem_index = 0 },
+            { hlsl_sem_name = "TEXCOORD", hlsl_sem_index = 1 },
+        }
+    end
+
+    local shd = gfx.make_shader(gfx.ShaderDesc(desc_table))
+    if gfx.query_shader_state(shd) ~= gfx.ResourceState.VALID then
+        log("Failed to create shader")
         return nil
     end
 
@@ -373,7 +410,7 @@ function init()
 
     -- Setup time and debug text
     stm.setup()
-    gfx.debugtext_setup()
+    sdtx.setup(sdtx.Desc({ fonts = { sdtx.font_c64() } }))
     last_time = stm.now()
 
     shader = compile_shader(shader_source, "raytracer")
@@ -399,9 +436,12 @@ function init()
         return
     end
 
-    -- Fullscreen quad
-    local verts = { -1, -1, 1, -1, -1, 1, 1, 1 }
-    vbuf = gfx.make_vertex_buffer(verts, 0)  -- immutable
+    -- Fullscreen quad (immutable buffer with initial data)
+    local packed = string.pack("ffffffff", -1, -1, 1, -1, -1, 1, 1, 1)
+    vbuf = gfx.make_buffer(gfx.BufferDesc({
+        data = packed,
+        usage = { vertex_buffer = true, immutable = true }
+    }))
 end
 
 function frame()
@@ -431,16 +471,17 @@ function frame()
     gfx.apply_pipeline(pipeline)
     gfx.apply_bindings(gfx.Bindings({ vertex_buffers = { vbuf } }))
 
-    -- Pass uniforms (time, aspect ratio)
-    gfx.apply_uniforms(0, { t, w / h, 0, 0 })
+    -- Pass uniforms (time, aspect ratio) using generated binding
+    local uniforms = string.pack("ffff", t, w / h, 0, 0)
+    gfx.apply_uniforms(0, gfx.Range(uniforms))
 
     gfx.draw(0, 4, 1)
 
-    -- Draw FPS
-    gfx.debugtext_origin(0.5, 0.5)
-    gfx.debugtext_color(1, 1, 0)
-    gfx.debugtext_print(string.format("FPS: %.1f", fps))
-    gfx.debugtext_draw()
+    -- Draw FPS using generated debugtext bindings
+    sdtx.origin(0.5, 0.5)
+    sdtx.color3f(1, 1, 0)
+    sdtx.puts(string.format("FPS: %.1f", fps))
+    sdtx.draw()
 
     gfx.end_pass()
     gfx.commit()

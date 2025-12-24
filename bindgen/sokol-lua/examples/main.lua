@@ -135,13 +135,46 @@ local function compile_shader(source, program_name)
         fs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_fragment.bin"
     end
 
-    -- Load shader
-    local shd, err = gfx.load_shader_bytecode(vs_file, fs_file)
+    -- Read shader files
+    local vs_f = io.open(vs_file, "rb")
+    if not vs_f then
+        log("Failed to open VS file: " .. vs_file)
+        return nil
+    end
+    local vs_data = vs_f:read("*a")
+    vs_f:close()
+
+    local fs_f = io.open(fs_file, "rb")
+    if not fs_f then
+        log("Failed to open FS file: " .. fs_file)
+        return nil
+    end
+    local fs_data = fs_f:read("*a")
+    fs_f:close()
+
     os.remove(vs_file)
     os.remove(fs_file)
 
-    if not shd then
-        log("Failed to load shader: " .. (err or "unknown error"))
+    -- Create shader using generated bindings
+    local backend = gfx.query_backend()
+    local is_glsl = (backend == gfx.Backend.GLCORE or backend == gfx.Backend.GLES3)
+
+    local desc_table = {
+        vertex_func = is_glsl and { source = vs_data } or { bytecode = vs_data },
+        fragment_func = is_glsl and { source = fs_data } or { bytecode = fs_data },
+    }
+
+    -- D3D11 needs attribute semantics
+    if backend == gfx.Backend.D3D11 then
+        desc_table.attrs = {
+            { hlsl_sem_name = "TEXCOORD", hlsl_sem_index = 0 },
+            { hlsl_sem_name = "TEXCOORD", hlsl_sem_index = 1 },
+        }
+    end
+
+    local shd = gfx.make_shader(gfx.ShaderDesc(desc_table))
+    if gfx.query_shader_state(shd) ~= gfx.ResourceState.VALID then
+        log("Failed to create shader")
         return nil
     end
 
@@ -173,20 +206,25 @@ function init()
         return
     end
 
-    -- Create vertex buffer (dynamic for animation)
-    local verts = {
-        0.0, 0.5,    1.0, 0.0, 0.0, 1.0,
-       -0.5, -0.5,   0.0, 1.0, 0.0, 1.0,
-        0.5, -0.5,   0.0, 0.0, 1.0, 1.0,
-    }
-    vbuf = gfx.make_vertex_buffer(verts, 2)  -- 2 = stream update
+    -- Create vertex buffer using generated bindings directly
+    -- For stream buffers: create empty, then update each frame
+    -- 6 floats per vertex * 3 vertices * 4 bytes = 72 bytes
+    vbuf = gfx.make_buffer(gfx.BufferDesc({
+        size = 18 * 4,  -- 18 floats
+        usage = { vertex_buffer = true, stream_update = true }
+    }))
+end
+
+-- Helper to pack vertex data
+local function pack_vertices(verts)
+    return string.pack(string.rep("f", #verts), table.unpack(verts))
 end
 
 function frame()
     t = t + 1.0 / 60.0
     if not pipeline then return end
 
-    -- Animate vertices
+    -- Animate vertices - build table then pack
     local vertices = {}
     for i = 0, 2 do
         local angle = t + i * (math.pi * 2 / 3)
@@ -202,7 +240,8 @@ function frame()
         table.insert(vertices, b)
         table.insert(vertices, 1.0)
     end
-    gfx.update_buffer(vbuf, vertices)
+    -- Use generated binding: update_buffer accepts sg_range (packed string)
+    gfx.update_buffer(vbuf, gfx.Range(pack_vertices(vertices)))
 
     -- Render
     gfx.begin_pass(gfx.Pass({

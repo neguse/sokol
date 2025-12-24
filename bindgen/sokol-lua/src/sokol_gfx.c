@@ -259,21 +259,26 @@ static int l_sg_view__newindex(lua_State *L) {
 }
 
 static int l_sg_range_new(lua_State *L) {
-    sg_range* ud = (sg_range*)lua_newuserdatauv(L, sizeof(sg_range), 0);
+    /* sg_range can be created from a string (binary data) or table */
+    sg_range* ud = (sg_range*)lua_newuserdatauv(L, sizeof(sg_range), 1);
     memset(ud, 0, sizeof(sg_range));
     luaL_setmetatable(L, "sokol.Range");
 
-    /* If first arg is a table, use it to initialize fields */
-    if (lua_istable(L, 1)) {
+    if (lua_isstring(L, 1)) {
+        /* Initialize from string (binary data) */
+        size_t len;
+        const char* data = lua_tolstring(L, 1, &len);
+        ud->ptr = data;
+        ud->size = len;
+        /* Keep reference to string to prevent GC */
+        lua_pushvalue(L, 1);
+        lua_setiuservalue(L, -2, 1);
+    } else if (lua_istable(L, 1)) {
         lua_getfield(L, 1, "ptr");
-        if (!lua_isnil(L, -1)) {
-            ud->ptr = lua_touserdata(L, -1);
-        }
+        if (!lua_isnil(L, -1)) ud->ptr = lua_touserdata(L, -1);
         lua_pop(L, 1);
         lua_getfield(L, 1, "size");
-        if (!lua_isnil(L, -1)) {
-            ud->size = (size_t)lua_tointeger(L, -1);
-        }
+        if (!lua_isnil(L, -1)) ud->size = (size_t)lua_tointeger(L, -1);
         lua_pop(L, 1);
     }
     return 1;
@@ -3053,7 +3058,13 @@ static int l_sg_buffer_desc_new(lua_State *L) {
         lua_pop(L, 1);
         lua_getfield(L, 1, "data");
         if (!lua_isnil(L, -1)) {
-            if (lua_istable(L, -1)) {
+            if (lua_isstring(L, -1)) {
+                /* Initialize sg_range from binary string */
+                size_t len;
+                const char* data = lua_tolstring(L, -1, &len);
+                ud->data.ptr = data;
+                ud->data.size = len;
+            } else if (lua_istable(L, -1)) {
                 /* Initialize from inline table */
                 lua_pushcfunction(L, l_sg_range_new);
                 lua_pushvalue(L, -2);
@@ -3455,7 +3466,13 @@ static int l_sg_image_data_new(lua_State *L) {
             for (int i = 0; i < 16; i++) {
                 lua_rawgeti(L, -1, i + 1);
                 if (!lua_isnil(L, -1)) {
-                    if (lua_istable(L, -1)) {
+                    if (lua_isstring(L, -1)) {
+                        /* Initialize sg_range from binary string */
+                        size_t len;
+                        const char* data = lua_tolstring(L, -1, &len);
+                        ud->mip_levels[i].ptr = data;
+                        ud->mip_levels[i].size = len;
+                    } else if (lua_istable(L, -1)) {
                         /* Initialize from inline table */
                         lua_pushcfunction(L, l_sg_range_new);
                         lua_pushvalue(L, -2);
@@ -4295,7 +4312,13 @@ static int l_sg_shader_function_new(lua_State *L) {
         lua_pop(L, 1);
         lua_getfield(L, 1, "bytecode");
         if (!lua_isnil(L, -1)) {
-            if (lua_istable(L, -1)) {
+            if (lua_isstring(L, -1)) {
+                /* Initialize sg_range from binary string */
+                size_t len;
+                const char* data = lua_tolstring(L, -1, &len);
+                ud->bytecode.ptr = data;
+                ud->bytecode.size = len;
+            } else if (lua_istable(L, -1)) {
                 /* Initialize from inline table */
                 lua_pushcfunction(L, l_sg_range_new);
                 lua_pushvalue(L, -2);
