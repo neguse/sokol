@@ -60,15 +60,10 @@ static void cleanup(void) {
 static void event(const sapp_event *ev) {
     lua_getglobal(L, "event");
     if (lua_isfunction(L, -1)) {
-        lua_newtable(L);
-        lua_pushinteger(L, ev->type);
-        lua_setfield(L, -2, "type");
-        lua_pushinteger(L, ev->key_code);
-        lua_setfield(L, -2, "key_code");
-        lua_pushnumber(L, ev->mouse_x);
-        lua_setfield(L, -2, "mouse_x");
-        lua_pushnumber(L, ev->mouse_y);
-        lua_setfield(L, -2, "mouse_y");
+        /* Push event as userdata with generated binding */
+        sapp_event* ud = (sapp_event*)lua_newuserdatauv(L, sizeof(sapp_event), 0);
+        *ud = *ev;
+        luaL_setmetatable(L, "sokol.Event");
 
         if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
             fprintf(stderr, "Lua error in event: %s\n", lua_tostring(L, -1));

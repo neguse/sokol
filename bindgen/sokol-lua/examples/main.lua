@@ -264,7 +264,7 @@ function cleanup()
 end
 
 function event(ev)
-    if ev.type == 1 and ev.key_code == 81 then
+    if ev.type == app.EventType.KEY_DOWN and ev.key_code == app.Keycode.Q then
         app.quit()
     end
 end
