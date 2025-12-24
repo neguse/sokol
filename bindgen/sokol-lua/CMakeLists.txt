@@ -1,18 +1,69 @@
 cmake_minimum_required(VERSION 3.10)
 project(sokol-lua C)
 
-# Lua
-find_package(Lua REQUIRED)
-
 # Options
 option(SOKOL_LUA_BUILD_SHARED "Build as shared library" OFF)
+option(SOKOL_LUA_USE_SYSTEM_LUA "Use system Lua instead of bundled" OFF)
 option(SOKOL_LUA_BACKEND_GL "Use OpenGL backend" OFF)
 option(SOKOL_LUA_BACKEND_GLES3 "Use OpenGL ES3 backend" OFF)
 option(SOKOL_LUA_BACKEND_D3D11 "Use Direct3D 11 backend" OFF)
 option(SOKOL_LUA_BACKEND_METAL "Use Metal backend" OFF)
 option(SOKOL_LUA_BACKEND_WGPU "Use WebGPU backend" OFF)
 
-# Sources
+# Lua 5.5
+if(SOKOL_LUA_USE_SYSTEM_LUA)
+    find_package(Lua REQUIRED)
+    set(LUA_TARGET ${LUA_LIBRARIES})
+    set(LUA_INCLUDE ${LUA_INCLUDE_DIR})
+else()
+    # Bundled Lua 5.5
+    set(LUA_SRC
+        lua/src/lapi.c
+        lua/src/lcode.c
+        lua/src/lctype.c
+        lua/src/ldebug.c
+        lua/src/ldo.c
+        lua/src/ldump.c
+        lua/src/lfunc.c
+        lua/src/lgc.c
+        lua/src/llex.c
+        lua/src/lmem.c
+        lua/src/lobject.c
+        lua/src/lopcodes.c
+        lua/src/lparser.c
+        lua/src/lstate.c
+        lua/src/lstring.c
+        lua/src/ltable.c
+        lua/src/ltm.c
+        lua/src/lundump.c
+        lua/src/lvm.c
+        lua/src/lzio.c
+        lua/src/lauxlib.c
+        lua/src/lbaselib.c
+        lua/src/lcorolib.c
+        lua/src/ldblib.c
+        lua/src/liolib.c
+        lua/src/lmathlib.c
+        lua/src/loadlib.c
+        lua/src/loslib.c
+        lua/src/lstrlib.c
+        lua/src/ltablib.c
+        lua/src/lutf8lib.c
+        lua/src/linit.c
+    )
+    add_library(lua55 STATIC ${LUA_SRC})
+    target_include_directories(lua55 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lua/src)
+    if(UNIX AND NOT APPLE)
+        target_compile_definitions(lua55 PRIVATE LUA_USE_LINUX)
+        target_link_libraries(lua55 PUBLIC dl m)
+    elseif(APPLE)
+        target_compile_definitions(lua55 PRIVATE LUA_USE_MACOSX)
+    endif()
+    set(LUA_TARGET lua55)
+    set(LUA_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/lua/src)
+endif()
+
+# Sokol-Lua sources
 set(SOKOL_LUA_SOURCES
     src/sokol_log.c
     src/sokol_gfx.c
@@ -35,12 +86,12 @@ endif()
 
 # Include directories
 target_include_directories(sokol-lua
-    PUBLIC ${LUA_INCLUDE_DIR}
+    PUBLIC ${LUA_INCLUDE}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/c
 )
 
 # Link Lua
-target_link_libraries(sokol-lua PUBLIC ${LUA_LIBRARIES})
+target_link_libraries(sokol-lua PUBLIC ${LUA_TARGET})
 
 # Sokol implementation defines
 target_compile_definitions(sokol-lua PRIVATE SOKOL_IMPL)
@@ -110,6 +161,16 @@ elseif(UNIX)
     )
 endif()
 
+# Lua interpreter (optional)
+option(SOKOL_LUA_BUILD_INTERPRETER "Build Lua interpreter" OFF)
+if(SOKOL_LUA_BUILD_INTERPRETER AND NOT SOKOL_LUA_USE_SYSTEM_LUA)
+    add_executable(lua lua/src/lua.c)
+    target_link_libraries(lua lua55)
+    if(UNIX)
+        target_link_libraries(lua readline)
+    endif()
+endif()
+
 # Install
 install(TARGETS sokol-lua
     LIBRARY DESTINATION lib
@@ -117,3 +178,4 @@ install(TARGETS sokol-lua
     RUNTIME DESTINATION bin
 )
 install(DIRECTORY c/ DESTINATION include/sokol FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY lua/src/ DESTINATION include/lua FILES_MATCHING PATTERN "*.h")
