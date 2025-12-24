@@ -4,6 +4,8 @@
 #include "sokol_glue.h"
 #include "sokol_log.h"
 #include "sokol_gl.h"
+#include "sokol_debugtext.h"
+#include "sokol_time.h"
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -82,6 +84,41 @@ static int l_update_buffer(lua_State *L) {
 
     sg_update_buffer(*buf, &(sg_range){ data, len * sizeof(float) });
     free(data);
+    return 0;
+}
+
+/* Debug text functions */
+static int l_debugtext_setup(lua_State *L) {
+    sdtx_setup(&(sdtx_desc_t){
+        .fonts[0] = sdtx_font_c64(),
+        .logger.func = slog_func,
+    });
+    return 0;
+}
+
+static int l_debugtext_print(lua_State *L) {
+    const char* text = luaL_checkstring(L, 1);
+    sdtx_puts(text);
+    return 0;
+}
+
+static int l_debugtext_origin(lua_State *L) {
+    float x = (float)luaL_checknumber(L, 1);
+    float y = (float)luaL_checknumber(L, 2);
+    sdtx_origin(x, y);
+    return 0;
+}
+
+static int l_debugtext_color(lua_State *L) {
+    float r = (float)luaL_checknumber(L, 1);
+    float g = (float)luaL_checknumber(L, 2);
+    float b = (float)luaL_checknumber(L, 3);
+    sdtx_color3f(r, g, b);
+    return 0;
+}
+
+static int l_debugtext_draw(lua_State *L) {
+    sdtx_draw();
     return 0;
 }
 
@@ -281,6 +318,16 @@ sapp_desc sokol_main(int argc, char* argv[]) {
     lua_setfield(L, -2, "load_shader_bytecode");
     lua_pushcfunction(L, l_apply_uniforms);
     lua_setfield(L, -2, "apply_uniforms");
+    lua_pushcfunction(L, l_debugtext_setup);
+    lua_setfield(L, -2, "debugtext_setup");
+    lua_pushcfunction(L, l_debugtext_print);
+    lua_setfield(L, -2, "debugtext_print");
+    lua_pushcfunction(L, l_debugtext_origin);
+    lua_setfield(L, -2, "debugtext_origin");
+    lua_pushcfunction(L, l_debugtext_color);
+    lua_setfield(L, -2, "debugtext_color");
+    lua_pushcfunction(L, l_debugtext_draw);
+    lua_setfield(L, -2, "debugtext_draw");
     lua_pop(L, 3);
 
     /* Load script */

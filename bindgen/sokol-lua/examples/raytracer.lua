@@ -3,6 +3,7 @@ local gfx = require("sokol.gfx")
 local app = require("sokol.app")
 local glue = require("sokol.glue")
 local slog = require("sokol.log")
+local stm = require("sokol.time")
 
 local function log(msg)
     slog.func("lua", 1, 0, msg, 0, "", nil)
@@ -11,8 +12,10 @@ end
 local shader = nil
 local pipeline = nil
 local vbuf = nil
-local ubuf = nil
 local t = 0
+local last_time = 0
+local frame_count = 0
+local fps = 0
 
 -- Raytracing shader - renders spheres with reflections
 local shader_source = [[
@@ -368,6 +371,11 @@ end
 function init()
     log("Raytracer init starting...")
 
+    -- Setup time and debug text
+    stm.setup()
+    gfx.debugtext_setup()
+    last_time = stm.now()
+
     shader = compile_shader(shader_source, "raytracer")
     if not shader then
         log("Shader compilation failed!")
@@ -400,6 +408,16 @@ function frame()
     t = t + 1.0 / 60.0
     if not pipeline then return end
 
+    -- Calculate FPS
+    frame_count = frame_count + 1
+    local now = stm.now()
+    local elapsed = stm.ms(stm.diff(now, last_time))
+    if elapsed >= 1000 then
+        fps = frame_count * 1000 / elapsed
+        frame_count = 0
+        last_time = now
+    end
+
     local w = 800
     local h = 600
 
@@ -417,6 +435,13 @@ function frame()
     gfx.apply_uniforms(0, { t, w / h, 0, 0 })
 
     gfx.draw(0, 4, 1)
+
+    -- Draw FPS
+    gfx.debugtext_origin(0.5, 0.5)
+    gfx.debugtext_color(1, 1, 0)
+    gfx.debugtext_print(string.format("FPS: %.1f", fps))
+    gfx.debugtext_draw()
+
     gfx.end_pass()
     gfx.commit()
 end
