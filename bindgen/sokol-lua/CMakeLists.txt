@@ -82,6 +82,8 @@ if(SOKOL_LUA_BUILD_SHARED)
     target_compile_definitions(sokol-lua PRIVATE SOKOL_LUA_EXPORTS)
 else()
     add_library(sokol-lua STATIC ${SOKOL_LUA_SOURCES})
+    # For static builds, define SOKOL_LUA_API as empty
+    target_compile_definitions(sokol-lua PUBLIC SOKOL_LUA_API=)
 endif()
 
 # Include directories

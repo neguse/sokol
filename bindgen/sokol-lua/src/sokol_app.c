@@ -3314,7 +3314,7 @@ static void register_sapp_mouse_cursor(lua_State *L) {
     lua_setfield(L, -2, "MouseCursor");
 }
 
-static void register_consts(lua_State *L) {
+static void register_consts_1(lua_State *L) {
     lua_pushinteger(L, 8);
     lua_setfield(L, -2, "MAX_TOUCHPOINTS");
     lua_pushinteger(L, 3);
@@ -3325,7 +3325,7 @@ static void register_consts(lua_State *L) {
     lua_setfield(L, -2, "MAX_ICONIMAGES");
 }
 
-static void register_consts(lua_State *L) {
+static void register_consts_2(lua_State *L) {
     lua_pushinteger(L, 1);
     lua_setfield(L, -2, "MODIFIER_SHIFT");
     lua_pushinteger(L, 2);
@@ -3621,7 +3621,7 @@ SOKOL_LUA_API int luaopen_sokol_app(lua_State *L) {
     register_sapp_pixel_format(L);
     register_sapp_html5_fetch_error(L);
     register_sapp_mouse_cursor(L);
-    register_consts(L);
-    register_consts(L);
+    register_consts_1(L);
+    register_consts_2(L);
     return 1;
 }

@@ -69,9 +69,11 @@ def reset_globals():
     global struct_types
     global enum_types
     global out_lines
+    global consts_counter
     struct_types = []
     enum_types = []
     out_lines = ''
+    consts_counter = 0
 
 def l(s):
     global out_lines
@@ -367,9 +369,13 @@ def gen_enum_constants(decl, prefix):
     l('}')
     l('')
 
+consts_counter = 0
+
 def gen_consts(decl, prefix):
     """Generate anonymous enum constants"""
-    l(f'static void register_consts(lua_State *L) {{')
+    global consts_counter
+    consts_counter += 1
+    l(f'static void register_consts_{consts_counter}(lua_State *L) {{')
     for item in decl['items']:
         item_name = item['name']
         lua_name = as_snake_case(item_name, prefix).upper()
@@ -377,6 +383,7 @@ def gen_consts(decl, prefix):
         l(f'    lua_setfield(L, -2, "{lua_name}");')
     l('}')
     l('')
+    return consts_counter
 
 def gen_metatable_registration(structs, prefix):
     """Generate code to register all metatables"""
@@ -397,7 +404,7 @@ def gen_metatable_registration(structs, prefix):
     l('}')
     l('')
 
-def gen_luaopen(module_name, prefix, funcs, structs, enums, consts):
+def gen_luaopen(module_name, prefix, funcs, structs, enums, consts_ids):
     """Generate the luaopen function"""
     l(f'static const luaL_Reg {module_name}_funcs[] = {{')
 
@@ -427,8 +434,8 @@ def gen_luaopen(module_name, prefix, funcs, structs, enums, consts):
         l(f'    register_{enum_name}(L);')
 
     # Register anonymous consts
-    for const_decl in consts:
-        l('    register_consts(L);')
+    for const_id in consts_ids:
+        l(f'    register_consts_{const_id}(L);')
 
     l('    return 1;')
     l('}')
@@ -460,7 +467,11 @@ def gen_module(inp, c_prefix, dep_prefixes):
     for dep_prefix in dep_prefixes:
         dep_module = module_names.get(dep_prefix)
         if dep_module:
-            l(f'#include "sokol_{dep_module}.h"')
+            l(f'#include "{header_names[dep_prefix]}"')
+
+    # sokol_glue needs sokol_app.h
+    if c_prefix == 'sglue_':
+        l('#include "sokol_app.h"')
 
     # Determine header name
     if c_prefix in ['sgl_', 'sdtx_', 'sshape_']:
@@ -527,14 +538,16 @@ def gen_module(inp, c_prefix, dep_prefixes):
         gen_enum_constants(enum_decl, prefix)
 
     # Generate const registration
+    consts_ids = []
     for const_decl in consts:
-        gen_consts(const_decl, prefix)
+        const_id = gen_consts(const_decl, prefix)
+        consts_ids.append(const_id)
 
     # Generate metatable registration
     gen_metatable_registration(structs, prefix)
 
     # Generate luaopen function
-    gen_luaopen(module_name, prefix, funcs, structs, enums, consts)
+    gen_luaopen(module_name, prefix, funcs, structs, enums, consts_ids)
 
 def get_csource_path(c_prefix):
     return f'{c_root}/{c_source_names[c_prefix]}'

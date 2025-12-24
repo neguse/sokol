@@ -13326,7 +13326,7 @@ static void register_sg_log_item(lua_State *L) {
     lua_setfield(L, -2, "LogItem");
 }
 
-static void register_consts(lua_State *L) {
+static void register_consts_1(lua_State *L) {
     lua_pushinteger(L, 0);
     lua_setfield(L, -2, "INVALID_ID");
     lua_pushinteger(L, 2);
@@ -14513,6 +14513,6 @@ SOKOL_LUA_API int luaopen_sokol_gfx(lua_State *L) {
     register_sg_shader_stage(L);
     register_sg_shader_attr_base_type(L);
     register_sg_log_item(L);
-    register_consts(L);
+    register_consts_1(L);
     return 1;
 }
