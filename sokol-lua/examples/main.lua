@@ -87,7 +87,7 @@ function frame()
         table.insert(vertices, b)
         table.insert(vertices, 1.0)
     end
-    gfx.update_buffer(vbuf, util.pack_floats(vertices))
+    gfx.update_buffer(vbuf, gfx.Range(util.pack_floats(vertices)))
 
     -- Render
     gfx.begin_pass(gfx.Pass({

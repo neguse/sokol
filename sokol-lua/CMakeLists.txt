@@ -212,6 +212,9 @@ if(SOKOL_LUA_BUILD_EXAMPLE)
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/examples/raytracer.lua
         $<TARGET_FILE_DIR:sokol-lua-example>/raytracer.lua
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_SOURCE_DIR}/examples/util.lua
+        $<TARGET_FILE_DIR:sokol-lua-example>/util.lua
     )
 endif()
 

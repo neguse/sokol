@@ -3,11 +3,14 @@
 #
 #   Generate Lua 5.5 C API bindings.
 #-------------------------------------------------------------------------------
-import gen_ir
-import gen_util as util
 import os, shutil, sys
 
-bindings_root = 'sokol-lua'
+# Add sokol/bindgen to path for gen_ir and gen_util
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../bindgen'))
+import gen_ir
+import gen_util as util
+
+bindings_root = '.'
 c_root = f'{bindings_root}/c'
 module_root = f'{bindings_root}/src'
 
@@ -142,14 +145,18 @@ def is_enum_type(s):
     return s in enum_types
 
 def is_const_struct_ptr(s):
+    # Normalize spacing for comparison
+    normalized = s.replace(' *', '*').replace('* ', '*')
     for struct_type in struct_types:
-        if s == f"const {struct_type} *":
+        if normalized == f"const {struct_type}*":
             return True
     return False
 
 def is_struct_ptr(s):
+    # Normalize spacing for comparison
+    normalized = s.replace(' *', '*').replace('* ', '*')
     for struct_type in struct_types:
-        if s == f"{struct_type} *":
+        if normalized == f"{struct_type}*":
             return True
     return False
 
@@ -191,6 +198,19 @@ def get_lua_to_code(type_str, arg_index, var_name, prefix):
     elif is_const_struct_ptr(type_str):
         inner_type = util.extract_ptr_type(type_str)
         struct_name = as_struct_metatable_name(inner_type)
+        # Special case: const sg_range* can accept string
+        if inner_type == 'sg_range':
+            return f'''sg_range {var_name}_storage;
+    const sg_range* {var_name};
+    if (lua_isstring(L, {arg_index})) {{
+        size_t len;
+        const char* data = lua_tolstring(L, {arg_index}, &len);
+        {var_name}_storage.ptr = data;
+        {var_name}_storage.size = len;
+        {var_name} = &{var_name}_storage;
+    }} else {{
+        {var_name} = (const sg_range*)luaL_checkudata(L, {arg_index}, "sokol.{struct_name}");
+    }}'''
         return f'const {inner_type}* {var_name} = (const {inner_type}*)luaL_checkudata(L, {arg_index}, "sokol.{struct_name}");'
     elif is_struct_ptr(type_str):
         inner_type = util.extract_ptr_type(type_str)

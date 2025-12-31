@@ -320,7 +320,7 @@ function frame()
     gfx.apply_bindings(gfx.Bindings({ vertex_buffers = { vbuf } }))
 
     -- Pass uniforms (time, aspect ratio)
-    gfx.apply_uniforms(0, util.pack_floats({ t, w / h, 0, 0 }))
+    gfx.apply_uniforms(0, gfx.Range(util.pack_floats({ t, w / h, 0, 0 })))
 
     gfx.draw(0, 4, 1)
 
