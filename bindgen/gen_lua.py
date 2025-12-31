@@ -801,7 +801,7 @@ def create_stub_c_file(c_prefix, dep_prefixes):
 types_root = f'{bindings_root}/types'
 
 def lua_type_from_c(type_str, prefix):
-    """Convert C type to EmmyLua type annotation"""
+    """Convert C type to LuaCATS type annotation"""
     if type_str == 'void':
         return 'nil'
     elif type_str == 'bool':
@@ -812,6 +812,8 @@ def lua_type_from_c(type_str, prefix):
         return 'number'
     elif util.is_string_ptr(type_str):
         return 'string'
+    elif type_str == 'sg_range' or type_str == 'const sg_range *' or type_str == 'sg_range *':
+        return 'gfx.Range|string'
     elif is_struct_type(type_str):
         module = module_names.get(get_type_prefix(type_str), 'sokol')
         struct_name = as_struct_metatable_name(type_str)
@@ -877,8 +879,8 @@ def gen_luacats_types(inp, prefix, module_name):
                 continue
             if 'value' in item:
                 next_value = int(item['value'])
-            # Quote numeric keys for valid Lua syntax
-            if short_name.isdigit():
+            # Quote keys that start with digits for valid Lua syntax
+            if short_name[0].isdigit():
                 lines.append(f'    ["{short_name}"] = {next_value},')
             else:
                 lines.append(f'    {short_name} = {next_value},')
@@ -900,6 +902,11 @@ def gen_luacats_types(inp, prefix, module_name):
             lines.append(f'---@field {field_name}? {lua_type}')
         lines.append('')
 
+    # Lua reserved keywords
+    lua_keywords = {'and', 'break', 'do', 'else', 'elseif', 'end', 'false', 'for',
+                    'function', 'goto', 'if', 'in', 'local', 'nil', 'not', 'or',
+                    'repeat', 'return', 'then', 'true', 'until', 'while'}
+
     # Generate function types
     for func_decl in funcs:
         if is_callback_func(func_decl['name']):
@@ -920,9 +927,12 @@ def gen_luacats_types(inp, prefix, module_name):
             lua_ret = lua_type_from_c(result_type, prefix)
             lines.append(f'---@return {lua_ret}')
 
-        # Function signature
+        # Function signature - use bracket syntax for reserved keywords
         param_names = ', '.join(p['name'] for p in params)
-        lines.append(f'function {module_name}.{func_name}({param_names}) end')
+        if func_name in lua_keywords:
+            lines.append(f'{module_name}["{func_name}"] = function({param_names}) end')
+        else:
+            lines.append(f'function {module_name}.{func_name}({param_names}) end')
         lines.append('')
 
     lines.append(f'return {module_name}')

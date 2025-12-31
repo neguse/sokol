@@ -491,6 +491,6 @@ function gl.v3f_t2f_c4b(x, y, z, u, v, r, g, b, a) end
 ---@param rgba integer
 function gl.v3f_t2f_c1i(x, y, z, u, v, rgba) end
 
-function gl.end() end
+gl["end"] = function() end
 
 return gl

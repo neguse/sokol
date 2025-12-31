@@ -233,9 +233,9 @@ gfx.IndexType = {
 ---@enum gfx.ImageType
 gfx.ImageType = {
     DEFAULT = 0,
-    2D = 1,
+    ["2D"] = 1,
     CUBE = 2,
-    3D = 3,
+    ["3D"] = 3,
     ARRAY = 4,
     NUM = 5,
 }
@@ -1147,7 +1147,7 @@ gfx.LogItem = {
 ---@field stream_update? boolean
 
 ---@class gfx.ImageData
----@field mip_levels? gfx.Range[]
+---@field mip_levels? gfx.Range|string[]
 
 ---@class gfx.ImageDesc
 ---@field _start_canary? integer
@@ -1914,7 +1914,7 @@ function gfx.destroy_pipeline(pip) end
 function gfx.destroy_view(view) end
 
 ---@param buf gfx.Buffer
----@param data gfx.Range
+---@param data gfx.Range|string
 function gfx.update_buffer(buf, data) end
 
 ---@param img gfx.Image
@@ -1922,7 +1922,7 @@ function gfx.update_buffer(buf, data) end
 function gfx.update_image(img, data) end
 
 ---@param buf gfx.Buffer
----@param data gfx.Range
+---@param data gfx.Range|string
 ---@return integer
 function gfx.append_buffer(buf, data) end
 
@@ -1973,7 +1973,7 @@ function gfx.apply_pipeline(pip) end
 function gfx.apply_bindings(bindings) end
 
 ---@param ub_slot integer
----@param data gfx.Range
+---@param data gfx.Range|string
 function gfx.apply_uniforms(ub_slot, data) end
 
 ---@param base_element integer
