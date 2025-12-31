@@ -6,3 +6,4 @@ build/
 *.pyc
 #<fips
 **/.DS_Store
+.vs

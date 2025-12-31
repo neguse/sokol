@@ -798,12 +798,131 @@ def create_stub_c_file(c_prefix, dep_prefixes):
     with open(f'{c_root}/{c_file}', 'w', newline='\n') as f:
         f.write(stub_content)
 
+types_root = f'{bindings_root}/types'
+
+def lua_type_from_c(type_str, prefix):
+    """Convert C type to EmmyLua type annotation"""
+    if type_str == 'void':
+        return 'nil'
+    elif type_str == 'bool':
+        return 'boolean'
+    elif is_int_type(type_str):
+        return 'integer'
+    elif is_float_type(type_str):
+        return 'number'
+    elif util.is_string_ptr(type_str):
+        return 'string'
+    elif is_struct_type(type_str):
+        module = module_names.get(get_type_prefix(type_str), 'sokol')
+        struct_name = as_struct_metatable_name(type_str)
+        return f'{module}.{struct_name}'
+    elif is_const_struct_ptr(type_str) or is_struct_ptr(type_str):
+        inner_type = util.extract_ptr_type(type_str)
+        module = module_names.get(get_type_prefix(inner_type), 'sokol')
+        struct_name = as_struct_metatable_name(inner_type)
+        return f'{module}.{struct_name}'
+    elif is_enum_type(type_str):
+        module = module_names.get(get_type_prefix(type_str), 'sokol')
+        enum_name = as_pascal_case(type_str, get_type_prefix(type_str) or '')
+        return f'{module}.{enum_name}'
+    elif util.is_void_ptr(type_str) or util.is_const_void_ptr(type_str):
+        return 'lightuserdata?'
+    elif util.is_1d_array_type(type_str):
+        inner = util.extract_array_type(type_str)
+        inner_lua = lua_type_from_c(inner, prefix)
+        return f'{inner_lua}[]'
+    else:
+        return 'any'
+
+def gen_emmylua_types(inp, prefix, module_name):
+    """Generate EmmyLua type definition file"""
+    lines = []
+    lines.append('---@meta')
+    lines.append(f'-- EmmyLua type definitions for sokol.{module_name}')
+    lines.append(f'-- Auto-generated, do not edit')
+    lines.append('')
+
+    # Collect structs and enums
+    structs = []
+    enums = []
+    funcs = []
+    for decl in inp['decls']:
+        if decl.get('is_dep'):
+            continue
+        kind = decl['kind']
+        if kind == 'struct':
+            structs.append(decl)
+        elif kind == 'enum':
+            enums.append(decl)
+        elif kind == 'func' and not check_ignore(decl['name']):
+            funcs.append(decl)
+
+    # Generate enum types as integer aliases (for @meta files)
+    for enum_decl in enums:
+        enum_name = as_pascal_case(enum_decl['name'], prefix)
+        lines.append(f'---@alias {module_name}.{enum_name} integer')
+    lines.append('')
+
+    # Add enum tables and struct constructors as fields of the module class
+    lines.append(f'---@class {module_name}')
+    for enum_decl in enums:
+        enum_name = as_pascal_case(enum_decl['name'], prefix)
+        lines.append(f'---@field {enum_name} table<string, {module_name}.{enum_name}>')
+    for struct_decl in structs:
+        struct_name = as_struct_metatable_name(struct_decl['name'])
+        lines.append(f'---@field {struct_name} fun(t?: {module_name}.{struct_name}): {module_name}.{struct_name}')
+    lines.append(f'local {module_name} = {{}}')
+
+    # Generate struct types (all fields optional for partial initialization)
+    for struct_decl in structs:
+        struct_name = as_struct_metatable_name(struct_decl['name'])
+        lines.append(f'---@class {module_name}.{struct_name}')
+        for field in struct_decl.get('fields', []):
+            field_name = field['name']
+            field_type = field['type']
+            lua_type = lua_type_from_c(field_type, prefix)
+            # Handle sg_range specially - can be string
+            if field_type == 'sg_range':
+                lua_type = 'gfx.Range|string'
+            lines.append(f'---@field {field_name}? {lua_type}')
+        lines.append('')
+
+    # Generate function types
+    for func_decl in funcs:
+        if is_callback_func(func_decl['name']):
+            continue
+        func_name = as_snake_case(func_decl['name'], prefix)
+        params = func_decl.get('params', [])
+        result_type = get_result_type(func_decl)
+
+        # Build param annotations
+        for param in params:
+            param_name = param['name']
+            param_type = param['type']
+            lua_type = lua_type_from_c(param_type, prefix)
+            lines.append(f'---@param {param_name} {lua_type}')
+
+        # Return type
+        if result_type != 'void':
+            lua_ret = lua_type_from_c(result_type, prefix)
+            lines.append(f'---@return {lua_ret}')
+
+        # Function signature
+        param_names = ', '.join(p['name'] for p in params)
+        lines.append(f'function {module_name}.{func_name}({param_names}) end')
+        lines.append('')
+
+    lines.append(f'return {module_name}')
+    return '\n'.join(lines)
+
 def prepare():
     print('=== Generating Lua bindings:')
     if not os.path.isdir(module_root):
         os.makedirs(module_root)
     if not os.path.isdir(c_root):
         os.makedirs(c_root)
+    if not os.path.isdir(types_root):
+        os.makedirs(types_root)
 
 def gen(c_header_path, c_prefix, dep_c_prefixes):
     if c_prefix not in module_names:
@@ -828,3 +947,11 @@ def gen(c_header_path, c_prefix, dep_c_prefixes):
     gen_module(ir, c_prefix, dep_c_prefixes)
     with open(f"{module_root}/sokol_{module_name}.c", 'w', newline='\n') as f_outp:
         f_outp.write(out_lines)
+    # Generate EmmyLua type definitions
+    prefix = ir['prefix']
+    emmylua_content = gen_emmylua_types(ir, prefix, module_name)
+    types_sokol_dir = f"{types_root}/sokol"
+    if not os.path.isdir(types_sokol_dir):
+        os.makedirs(types_sokol_dir)
+    with open(f"{types_sokol_dir}/{module_name}.lua", 'w', newline='\n') as f_types:
+        f_types.write(emmylua_content)
