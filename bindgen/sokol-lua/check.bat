@@ -13,12 +13,8 @@ if "%LUA_LS%"=="" (
     exit /b 1
 )
 
-echo Checking examples...
-"%LUA_LS%" --check "%~dp0examples"
-
-echo.
-echo Checking types...
-"%LUA_LS%" --check "%~dp0types"
+echo Checking sokol-lua...
+"%LUA_LS%" --check "%~dp0."
 
 echo.
 echo Done.

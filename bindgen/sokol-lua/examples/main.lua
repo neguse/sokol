@@ -5,8 +5,11 @@ local glue = require("sokol.glue")
 local util = require("util")
 
 local t = 0
+---@type gfx.Shader?
 local shader = nil
+---@type gfx.Pipeline?
 local pipeline = nil
+---@type gfx.Buffer?
 local vbuf = nil
 
 -- Shader source (inline GLSL)
@@ -66,7 +69,7 @@ end
 
 function frame()
     t = t + 1.0 / 60.0
-    if not pipeline then return end
+    if not pipeline or not vbuf then return end
 
     -- Animate vertices
     local vertices = {}

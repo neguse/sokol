@@ -859,7 +859,21 @@ def gen_luacats_types(inp, prefix, module_name):
         elif kind == 'func' and not check_ignore(decl['name']):
             funcs.append(decl)
 
-    # Define module class first with struct constructors as fields
+    # Generate struct types first (so they're defined before being referenced)
+    for struct_decl in structs:
+        struct_name = as_struct_metatable_name(struct_decl['name'])
+        lines.append(f'---@class {module_name}.{struct_name}')
+        for field in struct_decl.get('fields', []):
+            field_name = field['name']
+            field_type = field['type']
+            lua_type = lua_type_from_c(field_type, prefix)
+            # Handle sg_range specially - can be string
+            if field_type == 'sg_range':
+                lua_type = 'gfx.Range|string'
+            lines.append(f'---@field {field_name}? {lua_type}')
+        lines.append('')
+
+    # Define module class with struct constructors as fields
     lines.append(f'---@class {module_name}')
     for struct_decl in structs:
         struct_name = as_struct_metatable_name(struct_decl['name'])
@@ -886,20 +900,6 @@ def gen_luacats_types(inp, prefix, module_name):
                 lines.append(f'    {short_name} = {next_value},')
             next_value += 1
         lines.append('}')
-        lines.append('')
-
-    # Generate struct types (all fields optional for partial initialization)
-    for struct_decl in structs:
-        struct_name = as_struct_metatable_name(struct_decl['name'])
-        lines.append(f'---@class {module_name}.{struct_name}')
-        for field in struct_decl.get('fields', []):
-            field_name = field['name']
-            field_type = field['type']
-            lua_type = lua_type_from_c(field_type, prefix)
-            # Handle sg_range specially - can be string
-            if field_type == 'sg_range':
-                lua_type = 'gfx.Range|string'
-            lines.append(f'---@field {field_name}? {lua_type}')
         lines.append('')
 
     # Lua reserved keywords

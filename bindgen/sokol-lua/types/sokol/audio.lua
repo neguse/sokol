@@ -2,6 +2,33 @@
 -- LuaCATS type definitions for sokol.audio
 -- Auto-generated, do not edit
 
+---@class audio.Logger
+---@field func? any
+---@field user_data? lightuserdata?
+
+---@class audio.Allocator
+---@field alloc_fn? any
+---@field free_fn? any
+---@field user_data? lightuserdata?
+
+---@class audio.N3dsDesc
+---@field queue_count? integer
+---@field interpolation_type? audio.N3dsNdspinterptype
+---@field channel_id? integer
+
+---@class audio.Desc
+---@field sample_rate? integer
+---@field num_channels? integer
+---@field buffer_frames? integer
+---@field packet_frames? integer
+---@field num_packets? integer
+---@field stream_cb? any
+---@field stream_userdata_cb? any
+---@field user_data? lightuserdata?
+---@field n3ds? audio.N3dsDesc
+---@field allocator? audio.Allocator
+---@field logger? audio.Logger
+
 ---@class audio
 ---@field Logger fun(t?: audio.Logger): audio.Logger
 ---@field Allocator fun(t?: audio.Allocator): audio.Allocator
@@ -49,33 +76,6 @@ audio.N3dsNdspinterptype = {
     N3DS_DSP_INTERP_LINEAR = 1,
     N3DS_DSP_INTERP_NONE = 2,
 }
-
----@class audio.Logger
----@field func? any
----@field user_data? lightuserdata?
-
----@class audio.Allocator
----@field alloc_fn? any
----@field free_fn? any
----@field user_data? lightuserdata?
-
----@class audio.N3dsDesc
----@field queue_count? integer
----@field interpolation_type? audio.N3dsNdspinterptype
----@field channel_id? integer
-
----@class audio.Desc
----@field sample_rate? integer
----@field num_channels? integer
----@field buffer_frames? integer
----@field packet_frames? integer
----@field num_packets? integer
----@field stream_cb? any
----@field stream_userdata_cb? any
----@field user_data? lightuserdata?
----@field n3ds? audio.N3dsDesc
----@field allocator? audio.Allocator
----@field logger? audio.Logger
 
 function audio.shutdown() end
 

@@ -2,27 +2,6 @@
 -- LuaCATS type definitions for sokol.gl
 -- Auto-generated, do not edit
 
----@class gl
----@field Logger fun(t?: gl.Logger): gl.Logger
----@field Pipeline fun(t?: gl.Pipeline): gl.Pipeline
----@field Context fun(t?: gl.Context): gl.Context
----@field Error fun(t?: gl.Error): gl.Error
----@field ContextDesc fun(t?: gl.ContextDesc): gl.ContextDesc
----@field Allocator fun(t?: gl.Allocator): gl.Allocator
----@field Desc fun(t?: gl.Desc): gl.Desc
-local gl = {}
-
----@enum gl.LogItem
-gl.LogItem = {
-    LOGITEM_OK = 0,
-    LOGITEM_MALLOC_FAILED = 1,
-    LOGITEM_MAKE_PIPELINE_FAILED = 2,
-    LOGITEM_PIPELINE_POOL_EXHAUSTED = 3,
-    LOGITEM_ADD_COMMIT_LISTENER_FAILED = 4,
-    LOGITEM_CONTEXT_POOL_EXHAUSTED = 5,
-    LOGITEM_CANNOT_DESTROY_DEFAULT_CONTEXT = 6,
-}
-
 ---@class gl.Logger
 ---@field func? any
 ---@field user_data? lightuserdata?
@@ -65,6 +44,27 @@ gl.LogItem = {
 ---@field face_winding? gfx.FaceWinding
 ---@field allocator? gl.Allocator
 ---@field logger? gl.Logger
+
+---@class gl
+---@field Logger fun(t?: gl.Logger): gl.Logger
+---@field Pipeline fun(t?: gl.Pipeline): gl.Pipeline
+---@field Context fun(t?: gl.Context): gl.Context
+---@field Error fun(t?: gl.Error): gl.Error
+---@field ContextDesc fun(t?: gl.ContextDesc): gl.ContextDesc
+---@field Allocator fun(t?: gl.Allocator): gl.Allocator
+---@field Desc fun(t?: gl.Desc): gl.Desc
+local gl = {}
+
+---@enum gl.LogItem
+gl.LogItem = {
+    LOGITEM_OK = 0,
+    LOGITEM_MALLOC_FAILED = 1,
+    LOGITEM_MAKE_PIPELINE_FAILED = 2,
+    LOGITEM_PIPELINE_POOL_EXHAUSTED = 3,
+    LOGITEM_ADD_COMMIT_LISTENER_FAILED = 4,
+    LOGITEM_CONTEXT_POOL_EXHAUSTED = 5,
+    LOGITEM_CANNOT_DESTROY_DEFAULT_CONTEXT = 6,
+}
 
 ---@param desc gl.Desc
 function gl.setup(desc) end

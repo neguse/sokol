@@ -2,6 +2,889 @@
 -- LuaCATS type definitions for sokol.gfx
 -- Auto-generated, do not edit
 
+---@class gfx.Buffer
+---@field id? integer
+
+---@class gfx.Image
+---@field id? integer
+
+---@class gfx.Sampler
+---@field id? integer
+
+---@class gfx.Shader
+---@field id? integer
+
+---@class gfx.Pipeline
+---@field id? integer
+
+---@class gfx.View
+---@field id? integer
+
+---@class gfx.Range
+---@field ptr? lightuserdata?
+---@field size? integer
+
+---@class gfx.Color
+---@field r? number
+---@field g? number
+---@field b? number
+---@field a? number
+
+---@class gfx.PixelformatInfo
+---@field sample? boolean
+---@field filter? boolean
+---@field render? boolean
+---@field blend? boolean
+---@field msaa? boolean
+---@field depth? boolean
+---@field compressed? boolean
+---@field read? boolean
+---@field write? boolean
+---@field bytes_per_pixel? integer
+
+---@class gfx.Features
+---@field origin_top_left? boolean
+---@field image_clamp_to_border? boolean
+---@field mrt_independent_blend_state? boolean
+---@field mrt_independent_write_mask? boolean
+---@field compute? boolean
+---@field msaa_texture_bindings? boolean
+---@field separate_buffer_types? boolean
+---@field draw_base_vertex? boolean
+---@field draw_base_instance? boolean
+---@field gl_texture_views? boolean
+
+---@class gfx.Limits
+---@field max_image_size_2d? integer
+---@field max_image_size_cube? integer
+---@field max_image_size_3d? integer
+---@field max_image_size_array? integer
+---@field max_image_array_layers? integer
+---@field max_vertex_attrs? integer
+---@field max_color_attachments? integer
+---@field max_texture_bindings_per_stage? integer
+---@field max_storage_buffer_bindings_per_stage? integer
+---@field max_storage_image_bindings_per_stage? integer
+---@field gl_max_vertex_uniform_components? integer
+---@field gl_max_combined_texture_image_units? integer
+---@field d3d11_max_unordered_access_views? integer
+---@field vk_min_uniform_buffer_offset_alignment? integer
+
+---@class gfx.ColorAttachmentAction
+---@field load_action? gfx.LoadAction
+---@field store_action? gfx.StoreAction
+---@field clear_value? gfx.Color
+
+---@class gfx.DepthAttachmentAction
+---@field load_action? gfx.LoadAction
+---@field store_action? gfx.StoreAction
+---@field clear_value? number
+
+---@class gfx.StencilAttachmentAction
+---@field load_action? gfx.LoadAction
+---@field store_action? gfx.StoreAction
+---@field clear_value? integer
+
+---@class gfx.PassAction
+---@field colors? gfx.ColorAttachmentAction[]
+---@field depth? gfx.DepthAttachmentAction
+---@field stencil? gfx.StencilAttachmentAction
+
+---@class gfx.MetalSwapchain
+---@field current_drawable? lightuserdata?
+---@field depth_stencil_texture? lightuserdata?
+---@field msaa_color_texture? lightuserdata?
+
+---@class gfx.D3d11Swapchain
+---@field render_view? lightuserdata?
+---@field resolve_view? lightuserdata?
+---@field depth_stencil_view? lightuserdata?
+
+---@class gfx.WgpuSwapchain
+---@field render_view? lightuserdata?
+---@field resolve_view? lightuserdata?
+---@field depth_stencil_view? lightuserdata?
+
+---@class gfx.VulkanSwapchain
+---@field render_image? lightuserdata?
+---@field render_view? lightuserdata?
+---@field resolve_image? lightuserdata?
+---@field resolve_view? lightuserdata?
+---@field depth_stencil_image? lightuserdata?
+---@field depth_stencil_view? lightuserdata?
+---@field render_finished_semaphore? lightuserdata?
+---@field present_complete_semaphore? lightuserdata?
+
+---@class gfx.GlSwapchain
+---@field framebuffer? integer
+
+---@class gfx.Swapchain
+---@field width? integer
+---@field height? integer
+---@field sample_count? integer
+---@field color_format? gfx.PixelFormat
+---@field depth_format? gfx.PixelFormat
+---@field metal? gfx.MetalSwapchain
+---@field d3d11? gfx.D3d11Swapchain
+---@field wgpu? gfx.WgpuSwapchain
+---@field vulkan? gfx.VulkanSwapchain
+---@field gl? gfx.GlSwapchain
+
+---@class gfx.Attachments
+---@field colors? gfx.View[]
+---@field resolves? gfx.View[]
+---@field depth_stencil? gfx.View
+
+---@class gfx.Pass
+---@field _start_canary? integer
+---@field compute? boolean
+---@field action? gfx.PassAction
+---@field attachments? gfx.Attachments
+---@field swapchain? gfx.Swapchain
+---@field label? string
+---@field _end_canary? integer
+
+---@class gfx.Bindings
+---@field _start_canary? integer
+---@field vertex_buffers? gfx.Buffer[]
+---@field vertex_buffer_offsets? integer[]
+---@field index_buffer? gfx.Buffer
+---@field index_buffer_offset? integer
+---@field views? gfx.View[]
+---@field samplers? gfx.Sampler[]
+---@field _end_canary? integer
+
+---@class gfx.BufferUsage
+---@field vertex_buffer? boolean
+---@field index_buffer? boolean
+---@field storage_buffer? boolean
+---@field immutable? boolean
+---@field dynamic_update? boolean
+---@field stream_update? boolean
+
+---@class gfx.BufferDesc
+---@field _start_canary? integer
+---@field size? integer
+---@field usage? gfx.BufferUsage
+---@field data? gfx.Range|string
+---@field label? string
+---@field gl_buffers? integer[]
+---@field mtl_buffers? lightuserdata?[]
+---@field d3d11_buffer? lightuserdata?
+---@field wgpu_buffer? lightuserdata?
+---@field _end_canary? integer
+
+---@class gfx.ImageUsage
+---@field storage_image? boolean
+---@field color_attachment? boolean
+---@field resolve_attachment? boolean
+---@field depth_stencil_attachment? boolean
+---@field immutable? boolean
+---@field dynamic_update? boolean
+---@field stream_update? boolean
+
+---@class gfx.ImageData
+---@field mip_levels? gfx.Range|string[]
+
+---@class gfx.ImageDesc
+---@field _start_canary? integer
+---@field type? gfx.ImageType
+---@field usage? gfx.ImageUsage
+---@field width? integer
+---@field height? integer
+---@field num_slices? integer
+---@field num_mipmaps? integer
+---@field pixel_format? gfx.PixelFormat
+---@field sample_count? integer
+---@field data? gfx.ImageData
+---@field label? string
+---@field gl_textures? integer[]
+---@field gl_texture_target? integer
+---@field mtl_textures? lightuserdata?[]
+---@field d3d11_texture? lightuserdata?
+---@field wgpu_texture? lightuserdata?
+---@field _end_canary? integer
+
+---@class gfx.SamplerDesc
+---@field _start_canary? integer
+---@field min_filter? gfx.Filter
+---@field mag_filter? gfx.Filter
+---@field mipmap_filter? gfx.Filter
+---@field wrap_u? gfx.Wrap
+---@field wrap_v? gfx.Wrap
+---@field wrap_w? gfx.Wrap
+---@field min_lod? number
+---@field max_lod? number
+---@field border_color? gfx.BorderColor
+---@field compare? gfx.CompareFunc
+---@field max_anisotropy? integer
+---@field label? string
+---@field gl_sampler? integer
+---@field mtl_sampler? lightuserdata?
+---@field d3d11_sampler? lightuserdata?
+---@field wgpu_sampler? lightuserdata?
+---@field _end_canary? integer
+
+---@class gfx.ShaderFunction
+---@field source? string
+---@field bytecode? gfx.Range|string
+---@field entry? string
+---@field d3d11_target? string
+---@field d3d11_filepath? string
+
+---@class gfx.ShaderVertexAttr
+---@field base_type? gfx.ShaderAttrBaseType
+---@field glsl_name? string
+---@field hlsl_sem_name? string
+---@field hlsl_sem_index? integer
+
+---@class gfx.GlslShaderUniform
+---@field type? gfx.UniformType
+---@field array_count? integer
+---@field glsl_name? string
+
+---@class gfx.ShaderUniformBlock
+---@field stage? gfx.ShaderStage
+---@field size? integer
+---@field hlsl_register_b_n? integer
+---@field msl_buffer_n? integer
+---@field wgsl_group0_binding_n? integer
+---@field spirv_set0_binding_n? integer
+---@field layout? gfx.UniformLayout
+---@field glsl_uniforms? gfx.GlslShaderUniform[]
+
+---@class gfx.ShaderTextureView
+---@field stage? gfx.ShaderStage
+---@field image_type? gfx.ImageType
+---@field sample_type? gfx.ImageSampleType
+---@field multisampled? boolean
+---@field hlsl_register_t_n? integer
+---@field msl_texture_n? integer
+---@field wgsl_group1_binding_n? integer
+---@field spirv_set1_binding_n? integer
+
+---@class gfx.ShaderStorageBufferView
+---@field stage? gfx.ShaderStage
+---@field readonly? boolean
+---@field hlsl_register_t_n? integer
+---@field hlsl_register_u_n? integer
+---@field msl_buffer_n? integer
+---@field wgsl_group1_binding_n? integer
+---@field spirv_set1_binding_n? integer
+---@field glsl_binding_n? integer
+
+---@class gfx.ShaderStorageImageView
+---@field stage? gfx.ShaderStage
+---@field image_type? gfx.ImageType
+---@field access_format? gfx.PixelFormat
+---@field writeonly? boolean
+---@field hlsl_register_u_n? integer
+---@field msl_texture_n? integer
+---@field wgsl_group1_binding_n? integer
+---@field spirv_set1_binding_n? integer
+---@field glsl_binding_n? integer
+
+---@class gfx.ShaderView
+---@field texture? gfx.ShaderTextureView
+---@field storage_buffer? gfx.ShaderStorageBufferView
+---@field storage_image? gfx.ShaderStorageImageView
+
+---@class gfx.ShaderSampler
+---@field stage? gfx.ShaderStage
+---@field sampler_type? gfx.SamplerType
+---@field hlsl_register_s_n? integer
+---@field msl_sampler_n? integer
+---@field wgsl_group1_binding_n? integer
+---@field spirv_set1_binding_n? integer
+
+---@class gfx.ShaderTextureSamplerPair
+---@field stage? gfx.ShaderStage
+---@field view_slot? integer
+---@field sampler_slot? integer
+---@field glsl_name? string
+
+---@class gfx.MtlShaderThreadsPerThreadgroup
+---@field x? integer
+---@field y? integer
+---@field z? integer
+
+---@class gfx.ShaderDesc
+---@field _start_canary? integer
+---@field vertex_func? gfx.ShaderFunction
+---@field fragment_func? gfx.ShaderFunction
+---@field compute_func? gfx.ShaderFunction
+---@field attrs? gfx.ShaderVertexAttr[]
+---@field uniform_blocks? gfx.ShaderUniformBlock[]
+---@field views? gfx.ShaderView[]
+---@field samplers? gfx.ShaderSampler[]
+---@field texture_sampler_pairs? gfx.ShaderTextureSamplerPair[]
+---@field mtl_threads_per_threadgroup? gfx.MtlShaderThreadsPerThreadgroup
+---@field label? string
+---@field _end_canary? integer
+
+---@class gfx.VertexBufferLayoutState
+---@field stride? integer
+---@field step_func? gfx.VertexStep
+---@field step_rate? integer
+
+---@class gfx.VertexAttrState
+---@field buffer_index? integer
+---@field offset? integer
+---@field format? gfx.VertexFormat
+
+---@class gfx.VertexLayoutState
+---@field buffers? gfx.VertexBufferLayoutState[]
+---@field attrs? gfx.VertexAttrState[]
+
+---@class gfx.StencilFaceState
+---@field compare? gfx.CompareFunc
+---@field fail_op? gfx.StencilOp
+---@field depth_fail_op? gfx.StencilOp
+---@field pass_op? gfx.StencilOp
+
+---@class gfx.StencilState
+---@field enabled? boolean
+---@field front? gfx.StencilFaceState
+---@field back? gfx.StencilFaceState
+---@field read_mask? integer
+---@field write_mask? integer
+---@field ref? integer
+
+---@class gfx.DepthState
+---@field pixel_format? gfx.PixelFormat
+---@field compare? gfx.CompareFunc
+---@field write_enabled? boolean
+---@field bias? number
+---@field bias_slope_scale? number
+---@field bias_clamp? number
+
+---@class gfx.BlendState
+---@field enabled? boolean
+---@field src_factor_rgb? gfx.BlendFactor
+---@field dst_factor_rgb? gfx.BlendFactor
+---@field op_rgb? gfx.BlendOp
+---@field src_factor_alpha? gfx.BlendFactor
+---@field dst_factor_alpha? gfx.BlendFactor
+---@field op_alpha? gfx.BlendOp
+
+---@class gfx.ColorTargetState
+---@field pixel_format? gfx.PixelFormat
+---@field write_mask? gfx.ColorMask
+---@field blend? gfx.BlendState
+
+---@class gfx.PipelineDesc
+---@field _start_canary? integer
+---@field compute? boolean
+---@field shader? gfx.Shader
+---@field layout? gfx.VertexLayoutState
+---@field depth? gfx.DepthState
+---@field stencil? gfx.StencilState
+---@field color_count? integer
+---@field colors? gfx.ColorTargetState[]
+---@field primitive_type? gfx.PrimitiveType
+---@field index_type? gfx.IndexType
+---@field cull_mode? gfx.CullMode
+---@field face_winding? gfx.FaceWinding
+---@field sample_count? integer
+---@field blend_color? gfx.Color
+---@field alpha_to_coverage_enabled? boolean
+---@field label? string
+---@field _end_canary? integer
+
+---@class gfx.BufferViewDesc
+---@field buffer? gfx.Buffer
+---@field offset? integer
+
+---@class gfx.ImageViewDesc
+---@field image? gfx.Image
+---@field mip_level? integer
+---@field slice? integer
+
+---@class gfx.TextureViewRange
+---@field base? integer
+---@field count? integer
+
+---@class gfx.TextureViewDesc
+---@field image? gfx.Image
+---@field mip_levels? gfx.TextureViewRange
+---@field slices? gfx.TextureViewRange
+
+---@class gfx.ViewDesc
+---@field _start_canary? integer
+---@field texture? gfx.TextureViewDesc
+---@field storage_buffer? gfx.BufferViewDesc
+---@field storage_image? gfx.ImageViewDesc
+---@field color_attachment? gfx.ImageViewDesc
+---@field resolve_attachment? gfx.ImageViewDesc
+---@field depth_stencil_attachment? gfx.ImageViewDesc
+---@field label? string
+---@field _end_canary? integer
+
+---@class gfx.TraceHooks
+---@field user_data? lightuserdata?
+---@field reset_state_cache? any
+---@field make_buffer? any
+---@field make_image? any
+---@field make_sampler? any
+---@field make_shader? any
+---@field make_pipeline? any
+---@field make_view? any
+---@field destroy_buffer? any
+---@field destroy_image? any
+---@field destroy_sampler? any
+---@field destroy_shader? any
+---@field destroy_pipeline? any
+---@field destroy_view? any
+---@field update_buffer? any
+---@field update_image? any
+---@field append_buffer? any
+---@field begin_pass? any
+---@field apply_viewport? any
+---@field apply_scissor_rect? any
+---@field apply_pipeline? any
+---@field apply_bindings? any
+---@field apply_uniforms? any
+---@field draw? any
+---@field draw_ex? any
+---@field dispatch? any
+---@field end_pass? any
+---@field commit? any
+---@field alloc_buffer? any
+---@field alloc_image? any
+---@field alloc_sampler? any
+---@field alloc_shader? any
+---@field alloc_pipeline? any
+---@field alloc_view? any
+---@field dealloc_buffer? any
+---@field dealloc_image? any
+---@field dealloc_sampler? any
+---@field dealloc_shader? any
+---@field dealloc_pipeline? any
+---@field dealloc_view? any
+---@field init_buffer? any
+---@field init_image? any
+---@field init_sampler? any
+---@field init_shader? any
+---@field init_pipeline? any
+---@field init_view? any
+---@field uninit_buffer? any
+---@field uninit_image? any
+---@field uninit_sampler? any
+---@field uninit_shader? any
+---@field uninit_pipeline? any
+---@field uninit_view? any
+---@field fail_buffer? any
+---@field fail_image? any
+---@field fail_sampler? any
+---@field fail_shader? any
+---@field fail_pipeline? any
+---@field fail_view? any
+---@field push_debug_group? any
+---@field pop_debug_group? any
+
+---@class gfx.SlotInfo
+---@field state? gfx.ResourceState
+---@field res_id? integer
+---@field uninit_count? integer
+
+---@class gfx.BufferInfo
+---@field slot? gfx.SlotInfo
+---@field update_frame_index? integer
+---@field append_frame_index? integer
+---@field append_pos? integer
+---@field append_overflow? boolean
+---@field num_slots? integer
+---@field active_slot? integer
+
+---@class gfx.ImageInfo
+---@field slot? gfx.SlotInfo
+---@field upd_frame_index? integer
+---@field num_slots? integer
+---@field active_slot? integer
+
+---@class gfx.SamplerInfo
+---@field slot? gfx.SlotInfo
+
+---@class gfx.ShaderInfo
+---@field slot? gfx.SlotInfo
+
+---@class gfx.PipelineInfo
+---@field slot? gfx.SlotInfo
+
+---@class gfx.ViewInfo
+---@field slot? gfx.SlotInfo
+
+---@class gfx.FrameStatsGl
+---@field num_bind_buffer? integer
+---@field num_active_texture? integer
+---@field num_bind_texture? integer
+---@field num_bind_sampler? integer
+---@field num_bind_image_texture? integer
+---@field num_use_program? integer
+---@field num_render_state? integer
+---@field num_vertex_attrib_pointer? integer
+---@field num_vertex_attrib_divisor? integer
+---@field num_enable_vertex_attrib_array? integer
+---@field num_disable_vertex_attrib_array? integer
+---@field num_uniform? integer
+---@field num_memory_barriers? integer
+
+---@class gfx.FrameStatsD3d11Pass
+---@field num_om_set_render_targets? integer
+---@field num_clear_render_target_view? integer
+---@field num_clear_depth_stencil_view? integer
+---@field num_resolve_subresource? integer
+
+---@class gfx.FrameStatsD3d11Pipeline
+---@field num_rs_set_state? integer
+---@field num_om_set_depth_stencil_state? integer
+---@field num_om_set_blend_state? integer
+---@field num_ia_set_primitive_topology? integer
+---@field num_ia_set_input_layout? integer
+---@field num_vs_set_shader? integer
+---@field num_vs_set_constant_buffers? integer
+---@field num_ps_set_shader? integer
+---@field num_ps_set_constant_buffers? integer
+---@field num_cs_set_shader? integer
+---@field num_cs_set_constant_buffers? integer
+
+---@class gfx.FrameStatsD3d11Bindings
+---@field num_ia_set_vertex_buffers? integer
+---@field num_ia_set_index_buffer? integer
+---@field num_vs_set_shader_resources? integer
+---@field num_vs_set_samplers? integer
+---@field num_ps_set_shader_resources? integer
+---@field num_ps_set_samplers? integer
+---@field num_cs_set_shader_resources? integer
+---@field num_cs_set_samplers? integer
+---@field num_cs_set_unordered_access_views? integer
+
+---@class gfx.FrameStatsD3d11Uniforms
+---@field num_update_subresource? integer
+
+---@class gfx.FrameStatsD3d11Draw
+---@field num_draw_indexed_instanced? integer
+---@field num_draw_indexed? integer
+---@field num_draw_instanced? integer
+---@field num_draw? integer
+
+---@class gfx.FrameStatsD3d11
+---@field pass? gfx.FrameStatsD3d11Pass
+---@field pipeline? gfx.FrameStatsD3d11Pipeline
+---@field bindings? gfx.FrameStatsD3d11Bindings
+---@field uniforms? gfx.FrameStatsD3d11Uniforms
+---@field draw? gfx.FrameStatsD3d11Draw
+---@field num_map? integer
+---@field num_unmap? integer
+
+---@class gfx.FrameStatsMetalIdpool
+---@field num_added? integer
+---@field num_released? integer
+---@field num_garbage_collected? integer
+
+---@class gfx.FrameStatsMetalPipeline
+---@field num_set_blend_color? integer
+---@field num_set_cull_mode? integer
+---@field num_set_front_facing_winding? integer
+---@field num_set_stencil_reference_value? integer
+---@field num_set_depth_bias? integer
+---@field num_set_render_pipeline_state? integer
+---@field num_set_depth_stencil_state? integer
+
+---@class gfx.FrameStatsMetalBindings
+---@field num_set_vertex_buffer? integer
+---@field num_set_vertex_buffer_offset? integer
+---@field num_skip_redundant_vertex_buffer? integer
+---@field num_set_vertex_texture? integer
+---@field num_skip_redundant_vertex_texture? integer
+---@field num_set_vertex_sampler_state? integer
+---@field num_skip_redundant_vertex_sampler_state? integer
+---@field num_set_fragment_buffer? integer
+---@field num_set_fragment_buffer_offset? integer
+---@field num_skip_redundant_fragment_buffer? integer
+---@field num_set_fragment_texture? integer
+---@field num_skip_redundant_fragment_texture? integer
+---@field num_set_fragment_sampler_state? integer
+---@field num_skip_redundant_fragment_sampler_state? integer
+---@field num_set_compute_buffer? integer
+---@field num_set_compute_buffer_offset? integer
+---@field num_skip_redundant_compute_buffer? integer
+---@field num_set_compute_texture? integer
+---@field num_skip_redundant_compute_texture? integer
+---@field num_set_compute_sampler_state? integer
+---@field num_skip_redundant_compute_sampler_state? integer
+
+---@class gfx.FrameStatsMetalUniforms
+---@field num_set_vertex_buffer_offset? integer
+---@field num_set_fragment_buffer_offset? integer
+---@field num_set_compute_buffer_offset? integer
+
+---@class gfx.FrameStatsMetal
+---@field idpool? gfx.FrameStatsMetalIdpool
+---@field pipeline? gfx.FrameStatsMetalPipeline
+---@field bindings? gfx.FrameStatsMetalBindings
+---@field uniforms? gfx.FrameStatsMetalUniforms
+
+---@class gfx.FrameStatsWgpuUniforms
+---@field num_set_bindgroup? integer
+---@field size_write_buffer? integer
+
+---@class gfx.FrameStatsWgpuBindings
+---@field num_set_vertex_buffer? integer
+---@field num_skip_redundant_vertex_buffer? integer
+---@field num_set_index_buffer? integer
+---@field num_skip_redundant_index_buffer? integer
+---@field num_create_bindgroup? integer
+---@field num_discard_bindgroup? integer
+---@field num_set_bindgroup? integer
+---@field num_skip_redundant_bindgroup? integer
+---@field num_bindgroup_cache_hits? integer
+---@field num_bindgroup_cache_misses? integer
+---@field num_bindgroup_cache_collisions? integer
+---@field num_bindgroup_cache_invalidates? integer
+---@field num_bindgroup_cache_hash_vs_key_mismatch? integer
+
+---@class gfx.FrameStatsWgpu
+---@field uniforms? gfx.FrameStatsWgpuUniforms
+---@field bindings? gfx.FrameStatsWgpuBindings
+
+---@class gfx.FrameStatsVk
+---@field num_cmd_pipeline_barrier? integer
+---@field num_allocate_memory? integer
+---@field num_free_memory? integer
+---@field size_allocate_memory? integer
+---@field num_delete_queue_added? integer
+---@field num_delete_queue_collected? integer
+---@field num_cmd_copy_buffer? integer
+---@field num_cmd_copy_buffer_to_image? integer
+---@field num_cmd_set_descriptor_buffer_offsets? integer
+---@field size_descriptor_buffer_writes? integer
+
+---@class gfx.FrameResourceStats
+---@field allocated? integer
+---@field deallocated? integer
+---@field inited? integer
+---@field uninited? integer
+
+---@class gfx.TotalResourceStats
+---@field alive? integer
+---@field free? integer
+---@field allocated? integer
+---@field deallocated? integer
+---@field inited? integer
+---@field uninited? integer
+
+---@class gfx.TotalStats
+---@field buffers? gfx.TotalResourceStats
+---@field images? gfx.TotalResourceStats
+---@field samplers? gfx.TotalResourceStats
+---@field views? gfx.TotalResourceStats
+---@field shaders? gfx.TotalResourceStats
+---@field pipelines? gfx.TotalResourceStats
+
+---@class gfx.FrameStats
+---@field frame_index? integer
+---@field num_passes? integer
+---@field num_apply_viewport? integer
+---@field num_apply_scissor_rect? integer
+---@field num_apply_pipeline? integer
+---@field num_apply_bindings? integer
+---@field num_apply_uniforms? integer
+---@field num_draw? integer
+---@field num_draw_ex? integer
+---@field num_dispatch? integer
+---@field num_update_buffer? integer
+---@field num_append_buffer? integer
+---@field num_update_image? integer
+---@field size_apply_uniforms? integer
+---@field size_update_buffer? integer
+---@field size_append_buffer? integer
+---@field size_update_image? integer
+---@field buffers? gfx.FrameResourceStats
+---@field images? gfx.FrameResourceStats
+---@field samplers? gfx.FrameResourceStats
+---@field views? gfx.FrameResourceStats
+---@field shaders? gfx.FrameResourceStats
+---@field pipelines? gfx.FrameResourceStats
+---@field gl? gfx.FrameStatsGl
+---@field d3d11? gfx.FrameStatsD3d11
+---@field metal? gfx.FrameStatsMetal
+---@field wgpu? gfx.FrameStatsWgpu
+---@field vk? gfx.FrameStatsVk
+
+---@class gfx.Stats
+---@field prev_frame? gfx.FrameStats
+---@field cur_frame? gfx.FrameStats
+---@field total? gfx.TotalStats
+
+---@class gfx.EnvironmentDefaults
+---@field color_format? gfx.PixelFormat
+---@field depth_format? gfx.PixelFormat
+---@field sample_count? integer
+
+---@class gfx.MetalEnvironment
+---@field device? lightuserdata?
+
+---@class gfx.D3d11Environment
+---@field device? lightuserdata?
+---@field device_context? lightuserdata?
+
+---@class gfx.WgpuEnvironment
+---@field device? lightuserdata?
+
+---@class gfx.VulkanEnvironment
+---@field physical_device? lightuserdata?
+---@field device? lightuserdata?
+---@field queue? lightuserdata?
+---@field queue_family_index? integer
+
+---@class gfx.Environment
+---@field defaults? gfx.EnvironmentDefaults
+---@field metal? gfx.MetalEnvironment
+---@field d3d11? gfx.D3d11Environment
+---@field wgpu? gfx.WgpuEnvironment
+---@field vulkan? gfx.VulkanEnvironment
+
+---@class gfx.CommitListener
+---@field func? any
+---@field user_data? lightuserdata?
+
+---@class gfx.Allocator
+---@field alloc_fn? any
+---@field free_fn? any
+---@field user_data? lightuserdata?
+
+---@class gfx.Logger
+---@field func? any
+---@field user_data? lightuserdata?
+
+---@class gfx.D3d11Desc
+---@field shader_debugging? boolean
+
+---@class gfx.MetalDesc
+---@field force_managed_storage_mode? boolean
+---@field use_command_buffer_with_retained_references? boolean
+
+---@class gfx.WgpuDesc
+---@field disable_bindgroups_cache? boolean
+---@field bindgroups_cache_size? integer
+
+---@class gfx.VulkanDesc
+---@field copy_staging_buffer_size? integer
+---@field stream_staging_buffer_size? integer
+---@field descriptor_buffer_size? integer
+
+---@class gfx.Desc
+---@field _start_canary? integer
+---@field buffer_pool_size? integer
+---@field image_pool_size? integer
+---@field sampler_pool_size? integer
+---@field shader_pool_size? integer
+---@field pipeline_pool_size? integer
+---@field view_pool_size? integer
+---@field uniform_buffer_size? integer
+---@field max_commit_listeners? integer
+---@field disable_validation? boolean
+---@field enforce_portable_limits? boolean
+---@field d3d11? gfx.D3d11Desc
+---@field metal? gfx.MetalDesc
+---@field wgpu? gfx.WgpuDesc
+---@field vulkan? gfx.VulkanDesc
+---@field allocator? gfx.Allocator
+---@field logger? gfx.Logger
+---@field environment? gfx.Environment
+---@field _end_canary? integer
+
+---@class gfx.D3d11BufferInfo
+---@field buf? lightuserdata?
+
+---@class gfx.D3d11ImageInfo
+---@field tex2d? lightuserdata?
+---@field tex3d? lightuserdata?
+---@field res? lightuserdata?
+
+---@class gfx.D3d11SamplerInfo
+---@field smp? lightuserdata?
+
+---@class gfx.D3d11ShaderInfo
+---@field cbufs? lightuserdata?[]
+---@field vs? lightuserdata?
+---@field fs? lightuserdata?
+
+---@class gfx.D3d11PipelineInfo
+---@field il? lightuserdata?
+---@field rs? lightuserdata?
+---@field dss? lightuserdata?
+---@field bs? lightuserdata?
+
+---@class gfx.D3d11ViewInfo
+---@field srv? lightuserdata?
+---@field uav? lightuserdata?
+---@field rtv? lightuserdata?
+---@field dsv? lightuserdata?
+
+---@class gfx.MtlBufferInfo
+---@field buf? lightuserdata?[]
+---@field active_slot? integer
+
+---@class gfx.MtlImageInfo
+---@field tex? lightuserdata?[]
+---@field active_slot? integer
+
+---@class gfx.MtlSamplerInfo
+---@field smp? lightuserdata?
+
+---@class gfx.MtlShaderInfo
+---@field vertex_lib? lightuserdata?
+---@field fragment_lib? lightuserdata?
+---@field vertex_func? lightuserdata?
+---@field fragment_func? lightuserdata?
+
+---@class gfx.MtlPipelineInfo
+---@field rps? lightuserdata?
+---@field dss? lightuserdata?
+
+---@class gfx.WgpuBufferInfo
+---@field buf? lightuserdata?
+
+---@class gfx.WgpuImageInfo
+---@field tex? lightuserdata?
+
+---@class gfx.WgpuSamplerInfo
+---@field smp? lightuserdata?
+
+---@class gfx.WgpuShaderInfo
+---@field vs_mod? lightuserdata?
+---@field fs_mod? lightuserdata?
+---@field bgl? lightuserdata?
+
+---@class gfx.WgpuPipelineInfo
+---@field render_pipeline? lightuserdata?
+---@field compute_pipeline? lightuserdata?
+
+---@class gfx.WgpuViewInfo
+---@field view? lightuserdata?
+
+---@class gfx.GlBufferInfo
+---@field buf? integer[]
+---@field active_slot? integer
+
+---@class gfx.GlImageInfo
+---@field tex? integer[]
+---@field tex_target? integer
+---@field active_slot? integer
+
+---@class gfx.GlSamplerInfo
+---@field smp? integer
+
+---@class gfx.GlShaderInfo
+---@field prog? integer
+
+---@class gfx.GlViewInfo
+---@field tex_view? integer[]
+---@field msaa_render_buffer? integer
+---@field msaa_resolve_frame_buffer? integer
+
 ---@class gfx
 ---@field Buffer fun(t?: gfx.Buffer): gfx.Buffer
 ---@field Image fun(t?: gfx.Image): gfx.Image
@@ -964,889 +1847,6 @@ gfx.LogItem = {
     VALIDATE_UPDIMG_ONCE = 457,
     VALIDATION_FAILED = 458,
 }
-
----@class gfx.Buffer
----@field id? integer
-
----@class gfx.Image
----@field id? integer
-
----@class gfx.Sampler
----@field id? integer
-
----@class gfx.Shader
----@field id? integer
-
----@class gfx.Pipeline
----@field id? integer
-
----@class gfx.View
----@field id? integer
-
----@class gfx.Range
----@field ptr? lightuserdata?
----@field size? integer
-
----@class gfx.Color
----@field r? number
----@field g? number
----@field b? number
----@field a? number
-
----@class gfx.PixelformatInfo
----@field sample? boolean
----@field filter? boolean
----@field render? boolean
----@field blend? boolean
----@field msaa? boolean
----@field depth? boolean
----@field compressed? boolean
----@field read? boolean
----@field write? boolean
----@field bytes_per_pixel? integer
-
----@class gfx.Features
----@field origin_top_left? boolean
----@field image_clamp_to_border? boolean
----@field mrt_independent_blend_state? boolean
----@field mrt_independent_write_mask? boolean
----@field compute? boolean
----@field msaa_texture_bindings? boolean
----@field separate_buffer_types? boolean
----@field draw_base_vertex? boolean
----@field draw_base_instance? boolean
----@field gl_texture_views? boolean
-
----@class gfx.Limits
----@field max_image_size_2d? integer
----@field max_image_size_cube? integer
----@field max_image_size_3d? integer
----@field max_image_size_array? integer
----@field max_image_array_layers? integer
----@field max_vertex_attrs? integer
----@field max_color_attachments? integer
----@field max_texture_bindings_per_stage? integer
----@field max_storage_buffer_bindings_per_stage? integer
----@field max_storage_image_bindings_per_stage? integer
----@field gl_max_vertex_uniform_components? integer
----@field gl_max_combined_texture_image_units? integer
----@field d3d11_max_unordered_access_views? integer
----@field vk_min_uniform_buffer_offset_alignment? integer
-
----@class gfx.ColorAttachmentAction
----@field load_action? gfx.LoadAction
----@field store_action? gfx.StoreAction
----@field clear_value? gfx.Color
-
----@class gfx.DepthAttachmentAction
----@field load_action? gfx.LoadAction
----@field store_action? gfx.StoreAction
----@field clear_value? number
-
----@class gfx.StencilAttachmentAction
----@field load_action? gfx.LoadAction
----@field store_action? gfx.StoreAction
----@field clear_value? integer
-
----@class gfx.PassAction
----@field colors? gfx.ColorAttachmentAction[]
----@field depth? gfx.DepthAttachmentAction
----@field stencil? gfx.StencilAttachmentAction
-
----@class gfx.MetalSwapchain
----@field current_drawable? lightuserdata?
----@field depth_stencil_texture? lightuserdata?
----@field msaa_color_texture? lightuserdata?
-
----@class gfx.D3d11Swapchain
----@field render_view? lightuserdata?
----@field resolve_view? lightuserdata?
----@field depth_stencil_view? lightuserdata?
-
----@class gfx.WgpuSwapchain
----@field render_view? lightuserdata?
----@field resolve_view? lightuserdata?
----@field depth_stencil_view? lightuserdata?
-
----@class gfx.VulkanSwapchain
----@field render_image? lightuserdata?
----@field render_view? lightuserdata?
----@field resolve_image? lightuserdata?
----@field resolve_view? lightuserdata?
----@field depth_stencil_image? lightuserdata?
----@field depth_stencil_view? lightuserdata?
----@field render_finished_semaphore? lightuserdata?
----@field present_complete_semaphore? lightuserdata?
-
----@class gfx.GlSwapchain
----@field framebuffer? integer
-
----@class gfx.Swapchain
----@field width? integer
----@field height? integer
----@field sample_count? integer
----@field color_format? gfx.PixelFormat
----@field depth_format? gfx.PixelFormat
----@field metal? gfx.MetalSwapchain
----@field d3d11? gfx.D3d11Swapchain
----@field wgpu? gfx.WgpuSwapchain
----@field vulkan? gfx.VulkanSwapchain
----@field gl? gfx.GlSwapchain
-
----@class gfx.Attachments
----@field colors? gfx.View[]
----@field resolves? gfx.View[]
----@field depth_stencil? gfx.View
-
----@class gfx.Pass
----@field _start_canary? integer
----@field compute? boolean
----@field action? gfx.PassAction
----@field attachments? gfx.Attachments
----@field swapchain? gfx.Swapchain
----@field label? string
----@field _end_canary? integer
-
----@class gfx.Bindings
----@field _start_canary? integer
----@field vertex_buffers? gfx.Buffer[]
----@field vertex_buffer_offsets? integer[]
----@field index_buffer? gfx.Buffer
----@field index_buffer_offset? integer
----@field views? gfx.View[]
----@field samplers? gfx.Sampler[]
----@field _end_canary? integer
-
----@class gfx.BufferUsage
----@field vertex_buffer? boolean
----@field index_buffer? boolean
----@field storage_buffer? boolean
----@field immutable? boolean
----@field dynamic_update? boolean
----@field stream_update? boolean
-
----@class gfx.BufferDesc
----@field _start_canary? integer
----@field size? integer
----@field usage? gfx.BufferUsage
----@field data? gfx.Range|string
----@field label? string
----@field gl_buffers? integer[]
----@field mtl_buffers? lightuserdata?[]
----@field d3d11_buffer? lightuserdata?
----@field wgpu_buffer? lightuserdata?
----@field _end_canary? integer
-
----@class gfx.ImageUsage
----@field storage_image? boolean
----@field color_attachment? boolean
----@field resolve_attachment? boolean
----@field depth_stencil_attachment? boolean
----@field immutable? boolean
----@field dynamic_update? boolean
----@field stream_update? boolean
-
----@class gfx.ImageData
----@field mip_levels? gfx.Range|string[]
-
----@class gfx.ImageDesc
----@field _start_canary? integer
----@field type? gfx.ImageType
----@field usage? gfx.ImageUsage
----@field width? integer
----@field height? integer
----@field num_slices? integer
----@field num_mipmaps? integer
----@field pixel_format? gfx.PixelFormat
----@field sample_count? integer
----@field data? gfx.ImageData
----@field label? string
----@field gl_textures? integer[]
----@field gl_texture_target? integer
----@field mtl_textures? lightuserdata?[]
----@field d3d11_texture? lightuserdata?
----@field wgpu_texture? lightuserdata?
----@field _end_canary? integer
-
----@class gfx.SamplerDesc
----@field _start_canary? integer
----@field min_filter? gfx.Filter
----@field mag_filter? gfx.Filter
----@field mipmap_filter? gfx.Filter
----@field wrap_u? gfx.Wrap
----@field wrap_v? gfx.Wrap
----@field wrap_w? gfx.Wrap
----@field min_lod? number
----@field max_lod? number
----@field border_color? gfx.BorderColor
----@field compare? gfx.CompareFunc
----@field max_anisotropy? integer
----@field label? string
----@field gl_sampler? integer
----@field mtl_sampler? lightuserdata?
----@field d3d11_sampler? lightuserdata?
----@field wgpu_sampler? lightuserdata?
----@field _end_canary? integer
-
----@class gfx.ShaderFunction
----@field source? string
----@field bytecode? gfx.Range|string
----@field entry? string
----@field d3d11_target? string
----@field d3d11_filepath? string
-
----@class gfx.ShaderVertexAttr
----@field base_type? gfx.ShaderAttrBaseType
----@field glsl_name? string
----@field hlsl_sem_name? string
----@field hlsl_sem_index? integer
-
----@class gfx.GlslShaderUniform
----@field type? gfx.UniformType
----@field array_count? integer
----@field glsl_name? string
-
----@class gfx.ShaderUniformBlock
----@field stage? gfx.ShaderStage
----@field size? integer
----@field hlsl_register_b_n? integer
----@field msl_buffer_n? integer
----@field wgsl_group0_binding_n? integer
----@field spirv_set0_binding_n? integer
----@field layout? gfx.UniformLayout
----@field glsl_uniforms? gfx.GlslShaderUniform[]
-
----@class gfx.ShaderTextureView
----@field stage? gfx.ShaderStage
----@field image_type? gfx.ImageType
----@field sample_type? gfx.ImageSampleType
----@field multisampled? boolean
----@field hlsl_register_t_n? integer
----@field msl_texture_n? integer
----@field wgsl_group1_binding_n? integer
----@field spirv_set1_binding_n? integer
-
----@class gfx.ShaderStorageBufferView
----@field stage? gfx.ShaderStage
----@field readonly? boolean
----@field hlsl_register_t_n? integer
----@field hlsl_register_u_n? integer
----@field msl_buffer_n? integer
----@field wgsl_group1_binding_n? integer
----@field spirv_set1_binding_n? integer
----@field glsl_binding_n? integer
-
----@class gfx.ShaderStorageImageView
----@field stage? gfx.ShaderStage
----@field image_type? gfx.ImageType
----@field access_format? gfx.PixelFormat
----@field writeonly? boolean
----@field hlsl_register_u_n? integer
----@field msl_texture_n? integer
----@field wgsl_group1_binding_n? integer
----@field spirv_set1_binding_n? integer
----@field glsl_binding_n? integer
-
----@class gfx.ShaderView
----@field texture? gfx.ShaderTextureView
----@field storage_buffer? gfx.ShaderStorageBufferView
----@field storage_image? gfx.ShaderStorageImageView
-
----@class gfx.ShaderSampler
----@field stage? gfx.ShaderStage
----@field sampler_type? gfx.SamplerType
----@field hlsl_register_s_n? integer
----@field msl_sampler_n? integer
----@field wgsl_group1_binding_n? integer
----@field spirv_set1_binding_n? integer
-
----@class gfx.ShaderTextureSamplerPair
----@field stage? gfx.ShaderStage
----@field view_slot? integer
----@field sampler_slot? integer
----@field glsl_name? string
-
----@class gfx.MtlShaderThreadsPerThreadgroup
----@field x? integer
----@field y? integer
----@field z? integer
-
----@class gfx.ShaderDesc
----@field _start_canary? integer
----@field vertex_func? gfx.ShaderFunction
----@field fragment_func? gfx.ShaderFunction
----@field compute_func? gfx.ShaderFunction
----@field attrs? gfx.ShaderVertexAttr[]
----@field uniform_blocks? gfx.ShaderUniformBlock[]
----@field views? gfx.ShaderView[]
----@field samplers? gfx.ShaderSampler[]
----@field texture_sampler_pairs? gfx.ShaderTextureSamplerPair[]
----@field mtl_threads_per_threadgroup? gfx.MtlShaderThreadsPerThreadgroup
----@field label? string
----@field _end_canary? integer
-
----@class gfx.VertexBufferLayoutState
----@field stride? integer
----@field step_func? gfx.VertexStep
----@field step_rate? integer
-
----@class gfx.VertexAttrState
----@field buffer_index? integer
----@field offset? integer
----@field format? gfx.VertexFormat
-
----@class gfx.VertexLayoutState
----@field buffers? gfx.VertexBufferLayoutState[]
----@field attrs? gfx.VertexAttrState[]
-
----@class gfx.StencilFaceState
----@field compare? gfx.CompareFunc
----@field fail_op? gfx.StencilOp
----@field depth_fail_op? gfx.StencilOp
----@field pass_op? gfx.StencilOp
-
----@class gfx.StencilState
----@field enabled? boolean
----@field front? gfx.StencilFaceState
----@field back? gfx.StencilFaceState
----@field read_mask? integer
----@field write_mask? integer
----@field ref? integer
-
----@class gfx.DepthState
----@field pixel_format? gfx.PixelFormat
----@field compare? gfx.CompareFunc
----@field write_enabled? boolean
----@field bias? number
----@field bias_slope_scale? number
----@field bias_clamp? number
-
----@class gfx.BlendState
----@field enabled? boolean
----@field src_factor_rgb? gfx.BlendFactor
----@field dst_factor_rgb? gfx.BlendFactor
----@field op_rgb? gfx.BlendOp
----@field src_factor_alpha? gfx.BlendFactor
----@field dst_factor_alpha? gfx.BlendFactor
----@field op_alpha? gfx.BlendOp
-
----@class gfx.ColorTargetState
----@field pixel_format? gfx.PixelFormat
----@field write_mask? gfx.ColorMask
----@field blend? gfx.BlendState
-
----@class gfx.PipelineDesc
----@field _start_canary? integer
----@field compute? boolean
----@field shader? gfx.Shader
----@field layout? gfx.VertexLayoutState
----@field depth? gfx.DepthState
----@field stencil? gfx.StencilState
----@field color_count? integer
----@field colors? gfx.ColorTargetState[]
----@field primitive_type? gfx.PrimitiveType
----@field index_type? gfx.IndexType
----@field cull_mode? gfx.CullMode
----@field face_winding? gfx.FaceWinding
----@field sample_count? integer
----@field blend_color? gfx.Color
----@field alpha_to_coverage_enabled? boolean
----@field label? string
----@field _end_canary? integer
-
----@class gfx.BufferViewDesc
----@field buffer? gfx.Buffer
----@field offset? integer
-
----@class gfx.ImageViewDesc
----@field image? gfx.Image
----@field mip_level? integer
----@field slice? integer
-
----@class gfx.TextureViewRange
----@field base? integer
----@field count? integer
-
----@class gfx.TextureViewDesc
----@field image? gfx.Image
----@field mip_levels? gfx.TextureViewRange
----@field slices? gfx.TextureViewRange
-
----@class gfx.ViewDesc
----@field _start_canary? integer
----@field texture? gfx.TextureViewDesc
----@field storage_buffer? gfx.BufferViewDesc
----@field storage_image? gfx.ImageViewDesc
----@field color_attachment? gfx.ImageViewDesc
----@field resolve_attachment? gfx.ImageViewDesc
----@field depth_stencil_attachment? gfx.ImageViewDesc
----@field label? string
----@field _end_canary? integer
-
----@class gfx.TraceHooks
----@field user_data? lightuserdata?
----@field reset_state_cache? any
----@field make_buffer? any
----@field make_image? any
----@field make_sampler? any
----@field make_shader? any
----@field make_pipeline? any
----@field make_view? any
----@field destroy_buffer? any
----@field destroy_image? any
----@field destroy_sampler? any
----@field destroy_shader? any
----@field destroy_pipeline? any
----@field destroy_view? any
----@field update_buffer? any
----@field update_image? any
----@field append_buffer? any
----@field begin_pass? any
----@field apply_viewport? any
----@field apply_scissor_rect? any
----@field apply_pipeline? any
----@field apply_bindings? any
----@field apply_uniforms? any
----@field draw? any
----@field draw_ex? any
----@field dispatch? any
----@field end_pass? any
----@field commit? any
----@field alloc_buffer? any
----@field alloc_image? any
----@field alloc_sampler? any
----@field alloc_shader? any
----@field alloc_pipeline? any
----@field alloc_view? any
----@field dealloc_buffer? any
----@field dealloc_image? any
----@field dealloc_sampler? any
----@field dealloc_shader? any
----@field dealloc_pipeline? any
----@field dealloc_view? any
----@field init_buffer? any
----@field init_image? any
----@field init_sampler? any
----@field init_shader? any
----@field init_pipeline? any
----@field init_view? any
----@field uninit_buffer? any
----@field uninit_image? any
----@field uninit_sampler? any
----@field uninit_shader? any
----@field uninit_pipeline? any
----@field uninit_view? any
----@field fail_buffer? any
----@field fail_image? any
----@field fail_sampler? any
----@field fail_shader? any
----@field fail_pipeline? any
----@field fail_view? any
----@field push_debug_group? any
----@field pop_debug_group? any
-
----@class gfx.SlotInfo
----@field state? gfx.ResourceState
----@field res_id? integer
----@field uninit_count? integer
-
----@class gfx.BufferInfo
----@field slot? gfx.SlotInfo
----@field update_frame_index? integer
----@field append_frame_index? integer
----@field append_pos? integer
----@field append_overflow? boolean
----@field num_slots? integer
----@field active_slot? integer
-
----@class gfx.ImageInfo
----@field slot? gfx.SlotInfo
----@field upd_frame_index? integer
----@field num_slots? integer
----@field active_slot? integer
-
----@class gfx.SamplerInfo
----@field slot? gfx.SlotInfo
-
----@class gfx.ShaderInfo
----@field slot? gfx.SlotInfo
-
----@class gfx.PipelineInfo
----@field slot? gfx.SlotInfo
-
----@class gfx.ViewInfo
----@field slot? gfx.SlotInfo
-
----@class gfx.FrameStatsGl
----@field num_bind_buffer? integer
----@field num_active_texture? integer
----@field num_bind_texture? integer
----@field num_bind_sampler? integer
----@field num_bind_image_texture? integer
----@field num_use_program? integer
----@field num_render_state? integer
----@field num_vertex_attrib_pointer? integer
----@field num_vertex_attrib_divisor? integer
----@field num_enable_vertex_attrib_array? integer
----@field num_disable_vertex_attrib_array? integer
----@field num_uniform? integer
----@field num_memory_barriers? integer
-
----@class gfx.FrameStatsD3d11Pass
----@field num_om_set_render_targets? integer
----@field num_clear_render_target_view? integer
----@field num_clear_depth_stencil_view? integer
----@field num_resolve_subresource? integer
-
----@class gfx.FrameStatsD3d11Pipeline
----@field num_rs_set_state? integer
----@field num_om_set_depth_stencil_state? integer
----@field num_om_set_blend_state? integer
----@field num_ia_set_primitive_topology? integer
----@field num_ia_set_input_layout? integer
----@field num_vs_set_shader? integer
----@field num_vs_set_constant_buffers? integer
----@field num_ps_set_shader? integer
----@field num_ps_set_constant_buffers? integer
----@field num_cs_set_shader? integer
----@field num_cs_set_constant_buffers? integer
-
----@class gfx.FrameStatsD3d11Bindings
----@field num_ia_set_vertex_buffers? integer
----@field num_ia_set_index_buffer? integer
----@field num_vs_set_shader_resources? integer
----@field num_vs_set_samplers? integer
----@field num_ps_set_shader_resources? integer
----@field num_ps_set_samplers? integer
----@field num_cs_set_shader_resources? integer
----@field num_cs_set_samplers? integer
----@field num_cs_set_unordered_access_views? integer
-
----@class gfx.FrameStatsD3d11Uniforms
----@field num_update_subresource? integer
-
----@class gfx.FrameStatsD3d11Draw
----@field num_draw_indexed_instanced? integer
----@field num_draw_indexed? integer
----@field num_draw_instanced? integer
----@field num_draw? integer
-
----@class gfx.FrameStatsD3d11
----@field pass? gfx.FrameStatsD3d11Pass
----@field pipeline? gfx.FrameStatsD3d11Pipeline
----@field bindings? gfx.FrameStatsD3d11Bindings
----@field uniforms? gfx.FrameStatsD3d11Uniforms
----@field draw? gfx.FrameStatsD3d11Draw
----@field num_map? integer
----@field num_unmap? integer
-
----@class gfx.FrameStatsMetalIdpool
----@field num_added? integer
----@field num_released? integer
----@field num_garbage_collected? integer
-
----@class gfx.FrameStatsMetalPipeline
----@field num_set_blend_color? integer
----@field num_set_cull_mode? integer
----@field num_set_front_facing_winding? integer
----@field num_set_stencil_reference_value? integer
----@field num_set_depth_bias? integer
----@field num_set_render_pipeline_state? integer
----@field num_set_depth_stencil_state? integer
-
----@class gfx.FrameStatsMetalBindings
----@field num_set_vertex_buffer? integer
----@field num_set_vertex_buffer_offset? integer
----@field num_skip_redundant_vertex_buffer? integer
----@field num_set_vertex_texture? integer
----@field num_skip_redundant_vertex_texture? integer
----@field num_set_vertex_sampler_state? integer
----@field num_skip_redundant_vertex_sampler_state? integer
----@field num_set_fragment_buffer? integer
----@field num_set_fragment_buffer_offset? integer
----@field num_skip_redundant_fragment_buffer? integer
----@field num_set_fragment_texture? integer
----@field num_skip_redundant_fragment_texture? integer
----@field num_set_fragment_sampler_state? integer
----@field num_skip_redundant_fragment_sampler_state? integer
----@field num_set_compute_buffer? integer
----@field num_set_compute_buffer_offset? integer
----@field num_skip_redundant_compute_buffer? integer
----@field num_set_compute_texture? integer
----@field num_skip_redundant_compute_texture? integer
----@field num_set_compute_sampler_state? integer
----@field num_skip_redundant_compute_sampler_state? integer
-
----@class gfx.FrameStatsMetalUniforms
----@field num_set_vertex_buffer_offset? integer
----@field num_set_fragment_buffer_offset? integer
----@field num_set_compute_buffer_offset? integer
-
----@class gfx.FrameStatsMetal
----@field idpool? gfx.FrameStatsMetalIdpool
----@field pipeline? gfx.FrameStatsMetalPipeline
----@field bindings? gfx.FrameStatsMetalBindings
----@field uniforms? gfx.FrameStatsMetalUniforms
-
----@class gfx.FrameStatsWgpuUniforms
----@field num_set_bindgroup? integer
----@field size_write_buffer? integer
-
----@class gfx.FrameStatsWgpuBindings
----@field num_set_vertex_buffer? integer
----@field num_skip_redundant_vertex_buffer? integer
----@field num_set_index_buffer? integer
----@field num_skip_redundant_index_buffer? integer
----@field num_create_bindgroup? integer
----@field num_discard_bindgroup? integer
----@field num_set_bindgroup? integer
----@field num_skip_redundant_bindgroup? integer
----@field num_bindgroup_cache_hits? integer
----@field num_bindgroup_cache_misses? integer
----@field num_bindgroup_cache_collisions? integer
----@field num_bindgroup_cache_invalidates? integer
----@field num_bindgroup_cache_hash_vs_key_mismatch? integer
-
----@class gfx.FrameStatsWgpu
----@field uniforms? gfx.FrameStatsWgpuUniforms
----@field bindings? gfx.FrameStatsWgpuBindings
-
----@class gfx.FrameStatsVk
----@field num_cmd_pipeline_barrier? integer
----@field num_allocate_memory? integer
----@field num_free_memory? integer
----@field size_allocate_memory? integer
----@field num_delete_queue_added? integer
----@field num_delete_queue_collected? integer
----@field num_cmd_copy_buffer? integer
----@field num_cmd_copy_buffer_to_image? integer
----@field num_cmd_set_descriptor_buffer_offsets? integer
----@field size_descriptor_buffer_writes? integer
-
----@class gfx.FrameResourceStats
----@field allocated? integer
----@field deallocated? integer
----@field inited? integer
----@field uninited? integer
-
----@class gfx.TotalResourceStats
----@field alive? integer
----@field free? integer
----@field allocated? integer
----@field deallocated? integer
----@field inited? integer
----@field uninited? integer
-
----@class gfx.TotalStats
----@field buffers? gfx.TotalResourceStats
----@field images? gfx.TotalResourceStats
----@field samplers? gfx.TotalResourceStats
----@field views? gfx.TotalResourceStats
----@field shaders? gfx.TotalResourceStats
----@field pipelines? gfx.TotalResourceStats
-
----@class gfx.FrameStats
----@field frame_index? integer
----@field num_passes? integer
----@field num_apply_viewport? integer
----@field num_apply_scissor_rect? integer
----@field num_apply_pipeline? integer
----@field num_apply_bindings? integer
----@field num_apply_uniforms? integer
----@field num_draw? integer
----@field num_draw_ex? integer
----@field num_dispatch? integer
----@field num_update_buffer? integer
----@field num_append_buffer? integer
----@field num_update_image? integer
----@field size_apply_uniforms? integer
----@field size_update_buffer? integer
----@field size_append_buffer? integer
----@field size_update_image? integer
----@field buffers? gfx.FrameResourceStats
----@field images? gfx.FrameResourceStats
----@field samplers? gfx.FrameResourceStats
----@field views? gfx.FrameResourceStats
----@field shaders? gfx.FrameResourceStats
----@field pipelines? gfx.FrameResourceStats
----@field gl? gfx.FrameStatsGl
----@field d3d11? gfx.FrameStatsD3d11
----@field metal? gfx.FrameStatsMetal
----@field wgpu? gfx.FrameStatsWgpu
----@field vk? gfx.FrameStatsVk
-
----@class gfx.Stats
----@field prev_frame? gfx.FrameStats
----@field cur_frame? gfx.FrameStats
----@field total? gfx.TotalStats
-
----@class gfx.EnvironmentDefaults
----@field color_format? gfx.PixelFormat
----@field depth_format? gfx.PixelFormat
----@field sample_count? integer
-
----@class gfx.MetalEnvironment
----@field device? lightuserdata?
-
----@class gfx.D3d11Environment
----@field device? lightuserdata?
----@field device_context? lightuserdata?
-
----@class gfx.WgpuEnvironment
----@field device? lightuserdata?
-
----@class gfx.VulkanEnvironment
----@field physical_device? lightuserdata?
----@field device? lightuserdata?
----@field queue? lightuserdata?
----@field queue_family_index? integer
-
----@class gfx.Environment
----@field defaults? gfx.EnvironmentDefaults
----@field metal? gfx.MetalEnvironment
----@field d3d11? gfx.D3d11Environment
----@field wgpu? gfx.WgpuEnvironment
----@field vulkan? gfx.VulkanEnvironment
-
----@class gfx.CommitListener
----@field func? any
----@field user_data? lightuserdata?
-
----@class gfx.Allocator
----@field alloc_fn? any
----@field free_fn? any
----@field user_data? lightuserdata?
-
----@class gfx.Logger
----@field func? any
----@field user_data? lightuserdata?
-
----@class gfx.D3d11Desc
----@field shader_debugging? boolean
-
----@class gfx.MetalDesc
----@field force_managed_storage_mode? boolean
----@field use_command_buffer_with_retained_references? boolean
-
----@class gfx.WgpuDesc
----@field disable_bindgroups_cache? boolean
----@field bindgroups_cache_size? integer
-
----@class gfx.VulkanDesc
----@field copy_staging_buffer_size? integer
----@field stream_staging_buffer_size? integer
----@field descriptor_buffer_size? integer
-
----@class gfx.Desc
----@field _start_canary? integer
----@field buffer_pool_size? integer
----@field image_pool_size? integer
----@field sampler_pool_size? integer
----@field shader_pool_size? integer
----@field pipeline_pool_size? integer
----@field view_pool_size? integer
----@field uniform_buffer_size? integer
----@field max_commit_listeners? integer
----@field disable_validation? boolean
----@field enforce_portable_limits? boolean
----@field d3d11? gfx.D3d11Desc
----@field metal? gfx.MetalDesc
----@field wgpu? gfx.WgpuDesc
----@field vulkan? gfx.VulkanDesc
----@field allocator? gfx.Allocator
----@field logger? gfx.Logger
----@field environment? gfx.Environment
----@field _end_canary? integer
-
----@class gfx.D3d11BufferInfo
----@field buf? lightuserdata?
-
----@class gfx.D3d11ImageInfo
----@field tex2d? lightuserdata?
----@field tex3d? lightuserdata?
----@field res? lightuserdata?
-
----@class gfx.D3d11SamplerInfo
----@field smp? lightuserdata?
-
----@class gfx.D3d11ShaderInfo
----@field cbufs? lightuserdata?[]
----@field vs? lightuserdata?
----@field fs? lightuserdata?
-
----@class gfx.D3d11PipelineInfo
----@field il? lightuserdata?
----@field rs? lightuserdata?
----@field dss? lightuserdata?
----@field bs? lightuserdata?
-
----@class gfx.D3d11ViewInfo
----@field srv? lightuserdata?
----@field uav? lightuserdata?
----@field rtv? lightuserdata?
----@field dsv? lightuserdata?
-
----@class gfx.MtlBufferInfo
----@field buf? lightuserdata?[]
----@field active_slot? integer
-
----@class gfx.MtlImageInfo
----@field tex? lightuserdata?[]
----@field active_slot? integer
-
----@class gfx.MtlSamplerInfo
----@field smp? lightuserdata?
-
----@class gfx.MtlShaderInfo
----@field vertex_lib? lightuserdata?
----@field fragment_lib? lightuserdata?
----@field vertex_func? lightuserdata?
----@field fragment_func? lightuserdata?
-
----@class gfx.MtlPipelineInfo
----@field rps? lightuserdata?
----@field dss? lightuserdata?
-
----@class gfx.WgpuBufferInfo
----@field buf? lightuserdata?
-
----@class gfx.WgpuImageInfo
----@field tex? lightuserdata?
-
----@class gfx.WgpuSamplerInfo
----@field smp? lightuserdata?
-
----@class gfx.WgpuShaderInfo
----@field vs_mod? lightuserdata?
----@field fs_mod? lightuserdata?
----@field bgl? lightuserdata?
-
----@class gfx.WgpuPipelineInfo
----@field render_pipeline? lightuserdata?
----@field compute_pipeline? lightuserdata?
-
----@class gfx.WgpuViewInfo
----@field view? lightuserdata?
-
----@class gfx.GlBufferInfo
----@field buf? integer[]
----@field active_slot? integer
-
----@class gfx.GlImageInfo
----@field tex? integer[]
----@field tex_target? integer
----@field active_slot? integer
-
----@class gfx.GlSamplerInfo
----@field smp? integer
-
----@class gfx.GlShaderInfo
----@field prog? integer
-
----@class gfx.GlViewInfo
----@field tex_view? integer[]
----@field msaa_render_buffer? integer
----@field msaa_resolve_frame_buffer? integer
 
 ---@param desc gfx.Desc
 function gfx.setup(desc) end

@@ -2,22 +2,6 @@
 -- LuaCATS type definitions for sokol.shape
 -- Auto-generated, do not edit
 
----@class shape
----@field Range fun(t?: shape.Range): shape.Range
----@field Mat4 fun(t?: shape.Mat4): shape.Mat4
----@field Vertex fun(t?: shape.Vertex): shape.Vertex
----@field ElementRange fun(t?: shape.ElementRange): shape.ElementRange
----@field SizesItem fun(t?: shape.SizesItem): shape.SizesItem
----@field Sizes fun(t?: shape.Sizes): shape.Sizes
----@field BufferItem fun(t?: shape.BufferItem): shape.BufferItem
----@field Buffer fun(t?: shape.Buffer): shape.Buffer
----@field Plane fun(t?: shape.Plane): shape.Plane
----@field Box fun(t?: shape.Box): shape.Box
----@field Sphere fun(t?: shape.Sphere): shape.Sphere
----@field Cylinder fun(t?: shape.Cylinder): shape.Cylinder
----@field Torus fun(t?: shape.Torus): shape.Torus
-local shape = {}
-
 ---@class shape.Range
 ---@field ptr? lightuserdata?
 ---@field size? integer
@@ -103,6 +87,22 @@ local shape = {}
 ---@field random_colors? boolean
 ---@field merge? boolean
 ---@field transform? shape.Mat4
+
+---@class shape
+---@field Range fun(t?: shape.Range): shape.Range
+---@field Mat4 fun(t?: shape.Mat4): shape.Mat4
+---@field Vertex fun(t?: shape.Vertex): shape.Vertex
+---@field ElementRange fun(t?: shape.ElementRange): shape.ElementRange
+---@field SizesItem fun(t?: shape.SizesItem): shape.SizesItem
+---@field Sizes fun(t?: shape.Sizes): shape.Sizes
+---@field BufferItem fun(t?: shape.BufferItem): shape.BufferItem
+---@field Buffer fun(t?: shape.Buffer): shape.Buffer
+---@field Plane fun(t?: shape.Plane): shape.Plane
+---@field Box fun(t?: shape.Box): shape.Box
+---@field Sphere fun(t?: shape.Sphere): shape.Sphere
+---@field Cylinder fun(t?: shape.Cylinder): shape.Cylinder
+---@field Torus fun(t?: shape.Torus): shape.Torus
+local shape = {}
 
 ---@param buf shape.Buffer
 ---@param params shape.Plane

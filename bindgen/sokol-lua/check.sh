@@ -25,12 +25,8 @@ if [ -z "$LUA_LS" ]; then
     exit 1
 fi
 
-echo "Checking examples..."
-$LUA_LS --check "$SCRIPT_DIR/examples"
-
-echo ""
-echo "Checking types..."
-$LUA_LS --check "$SCRIPT_DIR/types"
+echo "Checking sokol-lua..."
+$LUA_LS --check "$SCRIPT_DIR"
 
 echo ""
 echo "Done."

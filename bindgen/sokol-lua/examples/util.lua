@@ -61,7 +61,7 @@ function M.compile_shader(source, program_name, uniform_blocks)
     local tmp_out = tmp_dir .. "/shader_" .. os.time()
 
     -- Write shader source
-    local f = io.open(tmp_glsl, "w")
+    local f = assert(io.open(tmp_glsl, "w"))
     f:write(source)
     f:close()
 
@@ -72,7 +72,7 @@ function M.compile_shader(source, program_name, uniform_blocks)
     local ok
     if fxc_path then
         local bat_file = tmp_dir .. "\\run_shdc.bat"
-        local bat = io.open(bat_file, "w")
+        local bat = assert(io.open(bat_file, "w"))
         bat:write('set PATH=%PATH%;' .. fxc_path .. '\r\n')
         bat:write('sokol-shdc -i "' .. tmp_glsl:gsub("/", "\\") .. '" -o "' .. tmp_out:gsub("/", "\\") .. '" -l ' .. lang .. ' -f bare -b\r\n')
         bat:close()

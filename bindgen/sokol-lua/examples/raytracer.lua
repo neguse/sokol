@@ -6,8 +6,11 @@ local stm = require("sokol.time")
 local sdtx = require("sokol.debugtext")
 local util = require("util")
 
+---@type gfx.Shader?
 local shader = nil
+---@type gfx.Pipeline?
 local pipeline = nil
+---@type gfx.Buffer?
 local vbuf = nil
 local t = 0
 local last_time = 0
@@ -291,7 +294,7 @@ end
 
 function frame()
     t = t + 1.0 / 60.0
-    if not pipeline then return end
+    if not pipeline or not vbuf then return end
 
     -- Calculate FPS
     frame_count = frame_count + 1

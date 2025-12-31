@@ -2,26 +2,6 @@
 -- LuaCATS type definitions for sokol.debugtext
 -- Auto-generated, do not edit
 
----@class debugtext
----@field Logger fun(t?: debugtext.Logger): debugtext.Logger
----@field Context fun(t?: debugtext.Context): debugtext.Context
----@field Range fun(t?: debugtext.Range): debugtext.Range
----@field FontDesc fun(t?: debugtext.FontDesc): debugtext.FontDesc
----@field ContextDesc fun(t?: debugtext.ContextDesc): debugtext.ContextDesc
----@field Allocator fun(t?: debugtext.Allocator): debugtext.Allocator
----@field Desc fun(t?: debugtext.Desc): debugtext.Desc
-local debugtext = {}
-
----@enum debugtext.LogItem
-debugtext.LogItem = {
-    LOGITEM_OK = 0,
-    LOGITEM_MALLOC_FAILED = 1,
-    LOGITEM_ADD_COMMIT_LISTENER_FAILED = 2,
-    LOGITEM_COMMAND_BUFFER_FULL = 3,
-    LOGITEM_CONTEXT_POOL_EXHAUSTED = 4,
-    LOGITEM_CANNOT_DESTROY_DEFAULT_CONTEXT = 5,
-}
-
 ---@class debugtext.Logger
 ---@field func? any
 ---@field user_data? lightuserdata?
@@ -60,6 +40,26 @@ debugtext.LogItem = {
 ---@field context? debugtext.ContextDesc
 ---@field allocator? debugtext.Allocator
 ---@field logger? debugtext.Logger
+
+---@class debugtext
+---@field Logger fun(t?: debugtext.Logger): debugtext.Logger
+---@field Context fun(t?: debugtext.Context): debugtext.Context
+---@field Range fun(t?: debugtext.Range): debugtext.Range
+---@field FontDesc fun(t?: debugtext.FontDesc): debugtext.FontDesc
+---@field ContextDesc fun(t?: debugtext.ContextDesc): debugtext.ContextDesc
+---@field Allocator fun(t?: debugtext.Allocator): debugtext.Allocator
+---@field Desc fun(t?: debugtext.Desc): debugtext.Desc
+local debugtext = {}
+
+---@enum debugtext.LogItem
+debugtext.LogItem = {
+    LOGITEM_OK = 0,
+    LOGITEM_MALLOC_FAILED = 1,
+    LOGITEM_ADD_COMMIT_LISTENER_FAILED = 2,
+    LOGITEM_COMMAND_BUFFER_FULL = 3,
+    LOGITEM_CONTEXT_POOL_EXHAUSTED = 4,
+    LOGITEM_CANNOT_DESTROY_DEFAULT_CONTEXT = 5,
+}
 
 ---@param desc debugtext.Desc
 function debugtext.setup(desc) end
