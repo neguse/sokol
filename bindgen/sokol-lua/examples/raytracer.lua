@@ -1,14 +1,10 @@
--- Raytracer example - GPU raytracing in fragment shader
+-- Raytracer example: GPU raytracing in fragment shader
 local gfx = require("sokol.gfx")
 local app = require("sokol.app")
 local glue = require("sokol.glue")
-local slog = require("sokol.log")
 local stm = require("sokol.time")
 local sdtx = require("sokol.debugtext")
-
-local function log(msg)
-    slog.func("lua", 1, 0, msg, 0, "", nil)
-end
+local util = require("util")
 
 local shader = nil
 local pipeline = nil
@@ -255,172 +251,22 @@ void main() {
 @program raytracer vs fs
 ]]
 
--- Get shader language for current backend
-local function get_shader_lang()
-    local backend = gfx.query_backend()
-    if backend == gfx.Backend.D3D11 then
-        return "hlsl5"
-    elseif backend == gfx.Backend.METAL_MACOS or backend == gfx.Backend.METAL_IOS or backend == gfx.Backend.METAL_SIMULATOR then
-        return "metal_macos"
-    elseif backend == gfx.Backend.WGPU then
-        return "wgsl"
-    elseif backend == gfx.Backend.GLCORE then
-        return "glsl430"
-    elseif backend == gfx.Backend.GLES3 then
-        return "glsl300es"
-    else
-        return "glsl430"
-    end
-end
-
--- Find Windows SDK path for fxc.exe
-local function find_fxc_path()
-    local sdk_base = "C:\\Program Files (x86)\\Windows Kits\\10\\bin"
-    local handle = io.popen('dir "' .. sdk_base .. '" /b /ad 2>nul')
-    if not handle then return nil end
-
-    local latest = nil
-    for line in handle:lines() do
-        if line:match("^10%.") then latest = line end
-    end
-    handle:close()
-
-    if latest then
-        local path = sdk_base .. "\\" .. latest .. "\\x64"
-        local f = io.open(path .. "\\fxc.exe", "rb")
-        if f then
-            f:close()
-            return path
-        end
-    end
-    return nil
-end
-
--- Compile shader using sokol-shdc
-local function compile_shader(source, program_name)
-    log("compile_shader: starting for " .. program_name)
-
-    local tmp_dir = os.getenv("TEMP") or os.getenv("TMP") or "/tmp"
-    local tmp_glsl = tmp_dir .. "/shader_" .. os.time() .. ".glsl"
-    local tmp_out = tmp_dir .. "/shader_" .. os.time()
-
-    local f = io.open(tmp_glsl, "w")
-    f:write(source)
-    f:close()
-
-    local lang = get_shader_lang()
-    log("compile_shader: lang = " .. lang)
-
-    local fxc_path = (lang == "hlsl5" or lang == "hlsl4") and find_fxc_path() or nil
-    log("compile_shader: fxc_path = " .. tostring(fxc_path))
-
-    local ok
-    if fxc_path then
-        local bat_file = tmp_dir .. "\\run_shdc.bat"
-        local bat = io.open(bat_file, "w")
-        bat:write('set PATH=%PATH%;' .. fxc_path .. '\r\n')
-        bat:write('sokol-shdc -i "' .. tmp_glsl:gsub("/", "\\") .. '" -o "' .. tmp_out:gsub("/", "\\") .. '" -l ' .. lang .. ' -f bare -b\r\n')
-        bat:close()
-        ok = os.execute('cmd /c "' .. bat_file .. '"')
-        os.remove(bat_file)
-    else
-        ok = os.execute(string.format('sokol-shdc -i "%s" -o "%s" -l %s -f bare -b', tmp_glsl, tmp_out, lang))
-    end
-
-    os.remove(tmp_glsl)
-    log("compile_shader: sokol-shdc returned " .. tostring(ok))
-
-    if not ok then
-        log("Failed to run sokol-shdc")
-        return nil
-    end
-
-    local vs_file, fs_file
-    if lang == "hlsl5" or lang == "hlsl4" then
-        vs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_vertex.fxc"
-        fs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_fragment.fxc"
-    elseif lang:find("glsl") then
-        vs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_vertex.glsl"
-        fs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_fragment.glsl"
-    elseif lang:find("metal") then
-        vs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_vertex.metallib"
-        fs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_fragment.metallib"
-    elseif lang == "wgsl" then
-        vs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_vertex.wgsl"
-        fs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_fragment.wgsl"
-    else
-        vs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_vertex.bin"
-        fs_file = tmp_out .. "_" .. program_name .. "_" .. lang .. "_fragment.bin"
-    end
-    log("compile_shader: vs_file = " .. vs_file)
-    log("compile_shader: fs_file = " .. fs_file)
-
-    -- Read shader files
-    local vs_f = io.open(vs_file, "rb")
-    if not vs_f then
-        log("Failed to open VS file: " .. vs_file)
-        return nil
-    end
-    local vs_data = vs_f:read("*a")
-    vs_f:close()
-
-    local fs_f = io.open(fs_file, "rb")
-    if not fs_f then
-        log("Failed to open FS file: " .. fs_file)
-        return nil
-    end
-    local fs_data = fs_f:read("*a")
-    fs_f:close()
-
-    os.remove(vs_file)
-    os.remove(fs_file)
-
-    -- Create shader using generated bindings
-    local backend = gfx.query_backend()
-    local is_glsl = (backend == gfx.Backend.GLCORE or backend == gfx.Backend.GLES3)
-
-    local desc_table = {
-        vertex_func = is_glsl and { source = vs_data } or { bytecode = vs_data },
-        fragment_func = is_glsl and { source = fs_data } or { bytecode = fs_data },
-        uniform_blocks = {{
-            size = 16,  -- 4 floats: time, aspect, pad, pad
-            stage = gfx.ShaderStage.FRAGMENT,
-        }},
-    }
-
-    -- D3D11 needs attribute semantics
-    if backend == gfx.Backend.D3D11 then
-        desc_table.attrs = {
-            { hlsl_sem_name = "TEXCOORD", hlsl_sem_index = 0 },
-            { hlsl_sem_name = "TEXCOORD", hlsl_sem_index = 1 },
-        }
-    end
-
-    local shd = gfx.make_shader(gfx.ShaderDesc(desc_table))
-    if gfx.query_shader_state(shd) ~= gfx.ResourceState.VALID then
-        log("Failed to create shader")
-        return nil
-    end
-
-    return shd
-end
-
 function init()
-    log("Raytracer init starting...")
+    util.log("Raytracer init starting...")
 
-    -- Setup time and debug text
     stm.setup()
     sdtx.setup(sdtx.Desc({ fonts = { sdtx.font_c64() } }))
     last_time = stm.now()
 
-    shader = compile_shader(shader_source, "raytracer")
+    shader = util.compile_shader(shader_source, "raytracer", {
+        { size = 16, stage = gfx.ShaderStage.FRAGMENT }
+    })
     if not shader then
-        log("Shader compilation failed!")
+        util.log("Shader compilation failed!")
         return
     end
-    log("Shader compiled OK")
+    util.log("Shader compiled OK")
 
-    -- Create pipeline
     pipeline = gfx.make_pipeline(gfx.PipelineDesc({
         shader = shader,
         layout = {
@@ -432,14 +278,13 @@ function init()
     }))
 
     if gfx.query_pipeline_state(pipeline) ~= gfx.ResourceState.VALID then
-        log("Pipeline creation failed!")
+        util.log("Pipeline creation failed!")
         return
     end
 
-    -- Fullscreen quad (immutable buffer with initial data)
-    local packed = string.pack("ffffffff", -1, -1, 1, -1, -1, 1, 1, 1)
+    -- Fullscreen quad
     vbuf = gfx.make_buffer(gfx.BufferDesc({
-        data = packed,
+        data = util.pack_floats({ -1, -1, 1, -1, -1, 1, 1, 1 }),
         usage = { vertex_buffer = true, immutable = true }
     }))
 end
@@ -471,13 +316,12 @@ function frame()
     gfx.apply_pipeline(pipeline)
     gfx.apply_bindings(gfx.Bindings({ vertex_buffers = { vbuf } }))
 
-    -- Pass uniforms (time, aspect ratio) using generated binding
-    local uniforms = string.pack("ffff", t, w / h, 0, 0)
-    gfx.apply_uniforms(0, gfx.Range(uniforms))
+    -- Pass uniforms (time, aspect ratio)
+    gfx.apply_uniforms(0, util.pack_floats({ t, w / h, 0, 0 }))
 
     gfx.draw(0, 4, 1)
 
-    -- Draw FPS using generated debugtext bindings
+    -- Draw FPS
     sdtx.origin(0.5, 0.5)
     sdtx.color3f(1, 1, 0)
     sdtx.puts(string.format("FPS: %.1f", fps))
