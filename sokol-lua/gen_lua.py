@@ -49,7 +49,20 @@ c_source_names = {
     'sglue_':   'sokol_glue.c',
 }
 
-# Map prefix to header name for creating stub .c files
+# Map prefix to header path (relative to sokol root)
+header_paths = {
+    'slog_':    'sokol_log.h',
+    'sg_':      'sokol_gfx.h',
+    'sapp_':    'sokol_app.h',
+    'stm_':     'sokol_time.h',
+    'saudio_':  'sokol_audio.h',
+    'sgl_':     'util/sokol_gl.h',
+    'sdtx_':    'util/sokol_debugtext.h',
+    'sshape_':  'util/sokol_shape.h',
+    'sglue_':   'sokol_glue.h',
+}
+
+# Map prefix to header filename (for stub files)
 header_names = {
     'slog_':    'sokol_log.h',
     'sg_':      'sokol_gfx.h',
@@ -1029,6 +1042,6 @@ module_deps = {
 if __name__ == '__main__':
     prepare()
     for prefix in module_names:
-        header = header_names.get(prefix)
+        header_path = header_paths.get(prefix)
         deps = module_deps.get(prefix, [])
-        gen(f'{sokol_root}/{header}', prefix, deps)
+        gen(f'{sokol_root}/{header_path}', prefix, deps)

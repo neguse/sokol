@@ -3,7 +3,8 @@ build/
 install/
 
 # Generated code
-src/
+src/sokol_*.c
+!src/sokol_impl.c
 c/
 types/
 *.json

@@ -63,18 +63,40 @@ else()
     set(LUA_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/lua/src)
 endif()
 
+# Code generation
+find_package(Python3 COMPONENTS Interpreter)
+set(SOKOL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." CACHE PATH "Path to sokol directory")
+set(BINDGEN_DIR "${SOKOL_DIR}/bindgen" CACHE PATH "Path to sokol/bindgen directory")
+
+set(SOKOL_LUA_GENERATED
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sokol_log.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sokol_gfx.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sokol_app.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sokol_glue.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sokol_time.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sokol_audio.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sokol_gl.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sokol_debugtext.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sokol_shape.c
+)
+
+if(Python3_FOUND)
+    add_custom_command(
+        OUTPUT ${SOKOL_LUA_GENERATED}
+        COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
+            ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/gen_lua.py
+            --sokol ${SOKOL_DIR}
+            --bindgen ${BINDGEN_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/gen_lua.py
+        COMMENT "Generating Lua bindings..."
+    )
+endif()
+
 # Sokol-Lua sources
 set(SOKOL_LUA_SOURCES
     src/sokol_impl.c
-    src/sokol_log.c
-    src/sokol_gfx.c
-    src/sokol_app.c
-    src/sokol_glue.c
-    src/sokol_time.c
-    src/sokol_audio.c
-    src/sokol_gl.c
-    src/sokol_debugtext.c
-    src/sokol_shape.c
+    ${SOKOL_LUA_GENERATED}
 )
 
 # Library type
@@ -227,16 +249,3 @@ install(TARGETS sokol-lua
 install(DIRECTORY c/ DESTINATION include/sokol FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY lua/src/ DESTINATION include/lua FILES_MATCHING PATTERN "*.h")
 
-# Code generation target
-find_package(Python3 COMPONENTS Interpreter)
-if(Python3_FOUND)
-    set(SOKOL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." CACHE PATH "Path to sokol directory")
-    set(BINDGEN_DIR "${SOKOL_DIR}/bindgen" CACHE PATH "Path to sokol/bindgen directory")
-    add_custom_target(generate
-        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/gen_lua.py
-            --sokol ${SOKOL_DIR}
-            --bindgen ${BINDGEN_DIR}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT "Generating Lua bindings..."
-    )
-endif()
