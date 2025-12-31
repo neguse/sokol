@@ -65,7 +65,7 @@ endif()
 
 # Code generation
 find_package(Python3 COMPONENTS Interpreter)
-set(SOKOL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." CACHE PATH "Path to sokol directory")
+set(SOKOL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/deps/sokol" CACHE PATH "Path to sokol directory")
 set(BINDGEN_DIR "${SOKOL_DIR}/bindgen" CACHE PATH "Path to sokol/bindgen directory")
 
 set(SOKOL_LUA_GENERATED
