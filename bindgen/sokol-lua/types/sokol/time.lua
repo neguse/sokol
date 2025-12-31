@@ -1,10 +1,10 @@
 ---@meta
--- EmmyLua type definitions for sokol.time
+-- LuaCATS type definitions for sokol.time
 -- Auto-generated, do not edit
-
 
 ---@class time
 local time = {}
+
 function time.setup() end
 
 ---@return integer

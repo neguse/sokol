@@ -1,7 +1,6 @@
 ---@meta
--- EmmyLua type definitions for sokol.shape
+-- LuaCATS type definitions for sokol.shape
 -- Auto-generated, do not edit
-
 
 ---@class shape
 ---@field Range fun(t?: shape.Range): shape.Range
@@ -18,6 +17,7 @@
 ---@field Cylinder fun(t?: shape.Cylinder): shape.Cylinder
 ---@field Torus fun(t?: shape.Torus): shape.Torus
 local shape = {}
+
 ---@class shape.Range
 ---@field ptr? lightuserdata?
 ---@field size? integer

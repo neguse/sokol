@@ -834,11 +834,11 @@ def lua_type_from_c(type_str, prefix):
     else:
         return 'any'
 
-def gen_emmylua_types(inp, prefix, module_name):
-    """Generate EmmyLua type definition file"""
+def gen_luacats_types(inp, prefix, module_name):
+    """Generate LuaCATS type definition file"""
     lines = []
     lines.append('---@meta')
-    lines.append(f'-- EmmyLua type definitions for sokol.{module_name}')
+    lines.append(f'-- LuaCATS type definitions for sokol.{module_name}')
     lines.append(f'-- Auto-generated, do not edit')
     lines.append('')
 
@@ -857,21 +857,34 @@ def gen_emmylua_types(inp, prefix, module_name):
         elif kind == 'func' and not check_ignore(decl['name']):
             funcs.append(decl)
 
-    # Generate enum types as integer aliases (for @meta files)
-    for enum_decl in enums:
-        enum_name = as_pascal_case(enum_decl['name'], prefix)
-        lines.append(f'---@alias {module_name}.{enum_name} integer')
-    lines.append('')
-
-    # Add enum tables and struct constructors as fields of the module class
+    # Define module class first with struct constructors as fields
     lines.append(f'---@class {module_name}')
-    for enum_decl in enums:
-        enum_name = as_pascal_case(enum_decl['name'], prefix)
-        lines.append(f'---@field {enum_name} table<string, {module_name}.{enum_name}>')
     for struct_decl in structs:
         struct_name = as_struct_metatable_name(struct_decl['name'])
         lines.append(f'---@field {struct_name} fun(t?: {module_name}.{struct_name}): {module_name}.{struct_name}')
     lines.append(f'local {module_name} = {{}}')
+    lines.append('')
+
+    # Generate enum types with actual values (LuaCATS @enum)
+    for enum_decl in enums:
+        enum_name = as_pascal_case(enum_decl['name'], prefix)
+        lines.append(f'---@enum {module_name}.{enum_name}')
+        lines.append(f'{module_name}.{enum_name} = {{')
+        next_value = 0
+        for item in enum_decl['items']:
+            short_name = get_enum_item_short_name(enum_decl['name'], item['name'], prefix)
+            if short_name == 'FORCE_U32':
+                continue
+            if 'value' in item:
+                next_value = int(item['value'])
+            # Quote numeric keys for valid Lua syntax
+            if short_name.isdigit():
+                lines.append(f'    ["{short_name}"] = {next_value},')
+            else:
+                lines.append(f'    {short_name} = {next_value},')
+            next_value += 1
+        lines.append('}')
+        lines.append('')
 
     # Generate struct types (all fields optional for partial initialization)
     for struct_decl in structs:
@@ -947,11 +960,11 @@ def gen(c_header_path, c_prefix, dep_c_prefixes):
     gen_module(ir, c_prefix, dep_c_prefixes)
     with open(f"{module_root}/sokol_{module_name}.c", 'w', newline='\n') as f_outp:
         f_outp.write(out_lines)
-    # Generate EmmyLua type definitions
+    # Generate LuaCATS type definitions
     prefix = ir['prefix']
-    emmylua_content = gen_emmylua_types(ir, prefix, module_name)
+    luacats_content = gen_luacats_types(ir, prefix, module_name)
     types_sokol_dir = f"{types_root}/sokol"
     if not os.path.isdir(types_sokol_dir):
         os.makedirs(types_sokol_dir)
     with open(f"{types_sokol_dir}/{module_name}.lua", 'w', newline='\n') as f_types:
-        f_types.write(emmylua_content)
+        f_types.write(luacats_content)

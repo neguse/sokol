@@ -1,10 +1,10 @@
 ---@meta
--- EmmyLua type definitions for sokol.log
+-- LuaCATS type definitions for sokol.log
 -- Auto-generated, do not edit
-
 
 ---@class log
 local log = {}
+
 ---@param tag string
 ---@param log_level integer
 ---@param log_item integer
