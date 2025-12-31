@@ -824,8 +824,12 @@ def lua_type_from_c(type_str, prefix):
         struct_name = as_struct_metatable_name(inner_type)
         return f'{module}.{struct_name}'
     elif is_enum_type(type_str):
-        module = module_names.get(get_type_prefix(type_str), 'sokol')
-        enum_name = as_pascal_case(type_str, get_type_prefix(type_str) or '')
+        type_prefix = get_type_prefix(type_str)
+        # Cross-module enum references use integer to avoid undefined type warnings
+        if type_prefix != prefix:
+            return 'integer'
+        module = module_names.get(type_prefix, 'sokol')
+        enum_name = as_pascal_case(type_str, type_prefix or '')
         return f'{module}.{enum_name}'
     elif util.is_void_ptr(type_str) or util.is_const_void_ptr(type_str):
         return 'lightuserdata?'

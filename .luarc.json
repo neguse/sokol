@@ -1,5 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
-  "workspace.library": ["bindgen/sokol-lua/types"],
-  "runtime.version": "Lua 5.5"
+  "workspace.library": [
+    "bindgen/sokol-lua/types"
+  ],
+  "runtime.version": "Lua 5.5",
+  "diagnostics.globals": [
+    "init",
+    "frame",
+    "cleanup",
+    "event"
+  ]
 }
