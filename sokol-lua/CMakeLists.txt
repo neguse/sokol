@@ -18,41 +18,41 @@ if(SOKOL_LUA_USE_SYSTEM_LUA)
 else()
     # Bundled Lua 5.5
     set(LUA_SRC
-        lua/src/lapi.c
-        lua/src/lcode.c
-        lua/src/lctype.c
-        lua/src/ldebug.c
-        lua/src/ldo.c
-        lua/src/ldump.c
-        lua/src/lfunc.c
-        lua/src/lgc.c
-        lua/src/llex.c
-        lua/src/lmem.c
-        lua/src/lobject.c
-        lua/src/lopcodes.c
-        lua/src/lparser.c
-        lua/src/lstate.c
-        lua/src/lstring.c
-        lua/src/ltable.c
-        lua/src/ltm.c
-        lua/src/lundump.c
-        lua/src/lvm.c
-        lua/src/lzio.c
-        lua/src/lauxlib.c
-        lua/src/lbaselib.c
-        lua/src/lcorolib.c
-        lua/src/ldblib.c
-        lua/src/liolib.c
-        lua/src/lmathlib.c
-        lua/src/loadlib.c
-        lua/src/loslib.c
-        lua/src/lstrlib.c
-        lua/src/ltablib.c
-        lua/src/lutf8lib.c
-        lua/src/linit.c
+        deps/lua/lapi.c
+        deps/lua/lcode.c
+        deps/lua/lctype.c
+        deps/lua/ldebug.c
+        deps/lua/ldo.c
+        deps/lua/ldump.c
+        deps/lua/lfunc.c
+        deps/lua/lgc.c
+        deps/lua/llex.c
+        deps/lua/lmem.c
+        deps/lua/lobject.c
+        deps/lua/lopcodes.c
+        deps/lua/lparser.c
+        deps/lua/lstate.c
+        deps/lua/lstring.c
+        deps/lua/ltable.c
+        deps/lua/ltm.c
+        deps/lua/lundump.c
+        deps/lua/lvm.c
+        deps/lua/lzio.c
+        deps/lua/lauxlib.c
+        deps/lua/lbaselib.c
+        deps/lua/lcorolib.c
+        deps/lua/ldblib.c
+        deps/lua/liolib.c
+        deps/lua/lmathlib.c
+        deps/lua/loadlib.c
+        deps/lua/loslib.c
+        deps/lua/lstrlib.c
+        deps/lua/ltablib.c
+        deps/lua/lutf8lib.c
+        deps/lua/linit.c
     )
     add_library(lua55 STATIC ${LUA_SRC})
-    target_include_directories(lua55 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lua/src)
+    target_include_directories(lua55 PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/deps/lua)
     if(UNIX AND NOT APPLE)
         target_compile_definitions(lua55 PRIVATE LUA_USE_LINUX)
         target_link_libraries(lua55 PUBLIC dl m)
@@ -60,7 +60,7 @@ else()
         target_compile_definitions(lua55 PRIVATE LUA_USE_MACOSX)
     endif()
     set(LUA_TARGET lua55)
-    set(LUA_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/lua/src)
+    set(LUA_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/deps/lua)
 endif()
 
 # Code generation
@@ -186,7 +186,7 @@ endif()
 # Lua interpreter (optional)
 option(SOKOL_LUA_BUILD_INTERPRETER "Build Lua interpreter" OFF)
 if(SOKOL_LUA_BUILD_INTERPRETER AND NOT SOKOL_LUA_USE_SYSTEM_LUA)
-    add_executable(lua lua/src/lua.c)
+    add_executable(lua deps/lua/lua.c)
     target_link_libraries(lua lua55)
     if(UNIX)
         target_link_libraries(lua readline)
@@ -247,5 +247,5 @@ install(TARGETS sokol-lua
     RUNTIME DESTINATION bin
 )
 install(DIRECTORY c/ DESTINATION include/sokol FILES_MATCHING PATTERN "*.h")
-install(DIRECTORY lua/src/ DESTINATION include/lua FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY deps/lua/ DESTINATION include/lua FILES_MATCHING PATTERN "*.h")
 

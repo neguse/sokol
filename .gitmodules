@@ -1,0 +1,3 @@
+[submodule "sokol-lua/deps/lua"]
+	path = sokol-lua/deps/lua
+	url = https://github.com/lua/lua
