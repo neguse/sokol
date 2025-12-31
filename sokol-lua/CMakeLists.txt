@@ -226,3 +226,17 @@ install(TARGETS sokol-lua
 )
 install(DIRECTORY c/ DESTINATION include/sokol FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY lua/src/ DESTINATION include/lua FILES_MATCHING PATTERN "*.h")
+
+# Code generation target
+find_package(Python3 COMPONENTS Interpreter)
+if(Python3_FOUND)
+    set(SOKOL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." CACHE PATH "Path to sokol directory")
+    set(BINDGEN_DIR "${SOKOL_DIR}/bindgen" CACHE PATH "Path to sokol/bindgen directory")
+    add_custom_target(generate
+        COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/gen_lua.py
+            --sokol ${SOKOL_DIR}
+            --bindgen ${BINDGEN_DIR}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Generating Lua bindings..."
+    )
+endif()

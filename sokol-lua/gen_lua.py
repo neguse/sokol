@@ -3,12 +3,23 @@
 #
 #   Generate Lua 5.5 C API bindings.
 #-------------------------------------------------------------------------------
+import argparse
 import os, shutil, sys
 
-# Add sokol/bindgen to path for gen_ir and gen_util
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../bindgen'))
+# Parse arguments first to get bindgen path
+parser = argparse.ArgumentParser(description='Generate Lua bindings for sokol')
+parser.add_argument('--bindgen', default=os.path.join(os.path.dirname(__file__), '../bindgen'),
+                    help='Path to sokol/bindgen directory')
+parser.add_argument('--sokol', default=os.path.join(os.path.dirname(__file__), '..'),
+                    help='Path to sokol directory (for headers)')
+args = parser.parse_args()
+
+# Add bindgen to path for gen_ir and gen_util
+sys.path.insert(0, args.bindgen)
 import gen_ir
 import gen_util as util
+
+sokol_root = args.sokol
 
 bindings_root = '.'
 c_root = f'{bindings_root}/c'
@@ -1002,3 +1013,22 @@ def gen(c_header_path, c_prefix, dep_c_prefixes):
         os.makedirs(types_sokol_dir)
     with open(f"{types_sokol_dir}/{module_name}.lua", 'w', newline='\n') as f_types:
         f_types.write(luacats_content)
+
+module_deps = {
+    'slog_':    [],
+    'sg_':      ['slog_'],
+    'sapp_':    ['slog_'],
+    'stm_':     [],
+    'saudio_':  ['slog_'],
+    'sgl_':     ['slog_', 'sg_'],
+    'sdtx_':    ['slog_', 'sg_'],
+    'sshape_':  ['slog_', 'sg_'],
+    'sglue_':   ['slog_', 'sg_', 'sapp_'],
+}
+
+if __name__ == '__main__':
+    prepare()
+    for prefix in module_names:
+        header = header_names.get(prefix)
+        deps = module_deps.get(prefix, [])
+        gen(f'{sokol_root}/{header}', prefix, deps)

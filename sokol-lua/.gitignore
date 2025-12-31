@@ -1,0 +1,15 @@
+# Build output
+build/
+install/
+
+# Generated code
+src/
+c/
+types/
+*.json
+
+# IDE
+.vs/
+.vscode/
+CMakeSettings.json
+*.user
