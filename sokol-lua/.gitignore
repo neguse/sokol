@@ -1,0 +1,16 @@
+# Build output
+build/
+install/
+
+# Generated code
+src/sokol_*.c
+!src/sokol_impl.c
+c/
+types/
+*.json
+
+# IDE
+.vs/
+.vscode/
+CMakeSettings.json
+*.user
